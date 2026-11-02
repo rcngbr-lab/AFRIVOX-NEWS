@@ -4,6 +4,8 @@
 
 AFRIVOX NEWS is not a static GitHub Pages application. It requires PHP execution, database persistence, authenticated admin routes, editorial workflow enforcement, file uploads and private media handling. GitHub is the source and CI/CD control plane; production must be an approved PHP/MySQL host. The current application documentation selects an Apache/cPanel-compatible PHP host, so the pipeline deploys over SSH only after explicit production configuration.
 
+GitHub Pages publishes only the isolated `public-pages/` design preview at `https://rcngbr-lab.github.io/AFRIVOX-NEWS/`. That preview is not the production newsroom, does not expose PHP source or credentials, and must not be treated as evidence that admin, database, publishing or upload workflows are live.
+
 ## Pipeline behavior
 
 `.github/workflows/production-pipeline.yml` runs on pull requests, pushes to `main` and manual dispatches. It:

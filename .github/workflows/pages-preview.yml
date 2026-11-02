@@ -1,0 +1,58 @@
+name: Deploy AFRIVOX NEWS Pages preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - public-pages/**
+      - .github/workflows/pages-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Validate and deploy static preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s public-pages/index.html
+          test -s public-pages/404.html
+          test -s public-pages/newsroom-preview.html
+          grep -q 'AFRIVOX NEWS' public-pages/index.html
+          if grep -Eqi 'config\.local|BEGIN [A-Z ]*PRIVATE KEY|local-preview\.sqlite' public-pages/*; then
+            echo 'Private runtime material detected in Pages artifact.' >&2
+            exit 1
+          fi
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload static Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public-pages
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

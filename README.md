@@ -8,9 +8,12 @@ AFRIVOX NEWS is a full-stack PHP newsroom and digital publishing platform. The p
 - Production branch: `main`
 - Runtime: PHP 8.1+, PDO MySQL, MySQL 8.0.29+ or MariaDB 10.6+, Apache/cPanel-compatible hosting and HTTPS
 - CI: `.github/workflows/production-pipeline.yml`
-- GitHub Pages: not supported for the full application because it cannot execute PHP, authentication, editorial workflows, uploads or database operations
+- Static public preview: `https://rcngbr-lab.github.io/AFRIVOX-NEWS/`
+- GitHub Pages does not execute the full application because it cannot run PHP, authentication, editorial workflows, uploads or database operations
 
 Every pull request and every push to `main` runs PHP syntax checks, the automated policy/data-integrity suite, secret-hygiene checks and deployment-artifact validation. Production deployment stays disabled until an approved server, GitHub production environment and required secrets are configured. See [`GITHUB_DEPLOYMENT.md`](GITHUB_DEPLOYMENT.md).
+
+The isolated `public-pages/` directory is deployed separately as a clearly marked static design preview. It contains no production configuration, database, private media or executable admin backend.
 
 ## Local verification
 
