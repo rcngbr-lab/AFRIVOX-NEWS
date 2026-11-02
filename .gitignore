@@ -1,0 +1,28 @@
+# Local secrets and runtime state
+**/config.local.php
+**/.env
+**/.env.*
+!**/.env.example
+**/storage/
+**/uploads/*
+!**/uploads/.htaccess
+**/app/installed.lock
+**/*.sqlite
+**/*.sqlite-*
+**/*.log
+
+# Release archives and local tooling output
+*.zip
+*.tar
+*.tar.gz
+build/
+dist/
+coverage/
+vendor/
+node_modules/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

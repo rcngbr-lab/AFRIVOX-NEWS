@@ -1,0 +1,145 @@
+name: AFRIVOX NEWS production pipeline
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-and-package:
+    name: Verify and package PHP application
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, openssl, fileinfo
+          coverage: none
+
+      - name: Verify PHP syntax
+        working-directory: AFRIVOX_NEWS
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -type f -name '*.php' -not -path './vendor/*' -print0 \
+            | xargs -0 -n1 php -l
+
+      - name: Run policy and data-integrity tests
+        working-directory: AFRIVOX_NEWS
+        run: php tests/run.php
+
+      - name: Verify repository secret hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e AFRIVOX_NEWS/config.local.php
+          test ! -e AFRIVOX_NEWS/storage/local-preview.sqlite
+          if git ls-files | grep -E '(^|/)(config\.local\.php|\.env($|\.)|storage/|.*\.sqlite([.-]|$))'; then
+            echo 'A private configuration or runtime database is tracked.' >&2
+            exit 1
+          fi
+
+      - name: Build deployable artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/AFRIVOX_NEWS
+          rsync -a \
+            --exclude='config.local.php' \
+            --exclude='storage/' \
+            --include='uploads/.htaccess' \
+            --exclude='uploads/*' \
+            --exclude='app/installed.lock' \
+            --exclude='*.log' \
+            --exclude='*.zip' \
+            AFRIVOX_NEWS/ build/AFRIVOX_NEWS/
+          test -f build/AFRIVOX_NEWS/index.php
+          test -f build/AFRIVOX_NEWS/config.example.php
+          test -f build/AFRIVOX_NEWS/uploads/.htaccess
+          test ! -e build/AFRIVOX_NEWS/config.local.php
+          test ! -e build/AFRIVOX_NEWS/storage/local-preview.sqlite
+
+      - name: Upload verified deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: afrivox-news-${{ github.sha }}
+          path: build/AFRIVOX_NEWS/
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy-production:
+    name: Deploy to production over SSH
+    needs: verify-and-package
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main' &&
+      vars.PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+
+    steps:
+      - name: Download verified artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: afrivox-news-${{ github.sha }}
+          path: artifact
+
+      - name: Configure locked-down SSH client
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_PRIVATE_KEY"
+          test -n "$SSH_KNOWN_HOSTS"
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Deploy application files
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          DEPLOY_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.PRODUCTION_DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_HOST"
+          test -n "$DEPLOY_USER"
+          test -n "$DEPLOY_PATH"
+          rsync -az --delete-delay \
+            --exclude='config.local.php' \
+            --exclude='storage/' \
+            --exclude='uploads/' \
+            --exclude='app/installed.lock' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -o BatchMode=yes -o StrictHostKeyChecking=yes' \
+            artifact/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+
+      - name: Verify deployed public endpoint
+        shell: bash
+        env:
+          HEALTHCHECK_URL: ${{ secrets.PRODUCTION_HEALTHCHECK_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$HEALTHCHECK_URL"
+          curl --fail --silent --show-error --location \
+            --retry 4 --retry-delay 5 --max-time 30 \
+            "$HEALTHCHECK_URL" > /dev/null
+

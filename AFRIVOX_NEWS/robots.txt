@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /install.php
+Disallow: /app/
+Disallow: /docs/
+# Replace with your actual public URL after installation:
+# Sitemap: https://example.rw/sitemap.php

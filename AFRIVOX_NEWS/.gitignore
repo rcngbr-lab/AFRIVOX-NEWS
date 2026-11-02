@@ -1,0 +1,7 @@
+/config.local.php
+/storage/
+/uploads/*
+!/uploads/.htaccess
+/app/installed.lock
+/*.zip
+*.log

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 132" role="img" aria-labelledby="title desc">
+  <title id="title">AFRIVOX NEWS</title>
+  <desc id="desc">AFRIVOX NEWS logo with an Africa symbol and the tagline Africa Has a Voice.</desc>
+  <g fill="none" fill-rule="evenodd">
+    <path fill="#062747" d="M16 111 72 10h48l45 101h-34l-9-22H69l-11 22H16Zm67-48h27L97 31 83 63Z"/>
+    <path fill="#fff" d="m94 37 9 4 7-1 8 8-4 7 4 6-8 8-1 12-8 8-6-5-8 2-5-10-8-4 1-12 7-9 1-8 11-6Z"/>
+    <path stroke="#DC101C" stroke-linecap="round" stroke-width="8" d="M148 30c17 16 17 45 0 61M162 18c25 24 25 62 0 85M177 9c32 31 32 80 0 111"/>
+    <path stroke="#062747" stroke-linecap="round" stroke-width="3" d="M390 105h88"/>
+    <text x="205" y="59" fill="#062747" font-family="Poppins,Arial,sans-serif" font-size="53" font-weight="800" letter-spacing="1">AFRIVOX</text>
+    <text x="205" y="96" fill="#DC101C" font-family="Poppins,Arial,sans-serif" font-size="36" font-weight="800" letter-spacing="1">NEWS</text>
+    <text x="205" y="120" fill="#062747" font-family="Poppins,Arial,sans-serif" font-size="16" font-style="italic">Africa Has a Voice.</text>
+  </g>
+</svg>

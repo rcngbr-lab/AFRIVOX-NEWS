@@ -1,0 +1,4 @@
+<?php require __DIR__.'/app/bootstrap.php';
+$items=query_all(public_article_select()." WHERE ".published_where()." AND a.type IN ('video','photo') ORDER BY a.published_at DESC LIMIT 48");
+render_header('Amafoto & Video'); ?>
+<main class="container content-section"><div class="category-header"><span class="overline">VISUAL JOURNALISM / MEDIA DESK</span><h1>Amafoto <i>& Video.</i></h1><p>Inkuru mu mashusho, amashusho y'ibikorwa n'inkuru z'amafoto.</p></div><div class="stories-grid archive-grid"><?php foreach($items as $a) card($a);?></div><?php if(!$items):?><p class="empty-state">Nta nkuru z'amafoto cyangwa video zirashyirwaho.</p><?php endif;?></main><?php render_footer(); ?>

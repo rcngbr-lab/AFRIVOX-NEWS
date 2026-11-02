@@ -1,0 +1,29 @@
+Validation date: 2026-10-30 (Africa/Khartoum client date)
+Release: AFRIVOX NEWS Ultimate phased staging candidate
+
+PASS  PHP syntax: all 49 PHP source files pass php -l on PHP 8.5.5.
+PASS  Automated tests: 70 passed, 0 failed.
+PASS  SQLite fresh/upgrade setup: tools/setup_local_sqlite.php completes successfully.
+PASS  Migration preflight: READY; configured encryption/audit keys valid, unknown contact statuses 0, plaintext internal source notes 0, legacy source notes requiring encryption 0.
+PASS  Audit evidence: cli/verify_audit_chain.php verifies the local signed chain.
+PASS  Editorial policy: author/self-approval, specialist gates, high/critical risk gates, source-classification/plaintext gates, media rights and critical publish separation are tested.
+PASS  Newsroom operations: pitch decisions/optimistic locking, assignment target integrity/lifecycle, taxonomy hierarchy and dedicated permissions are tested.
+PASS  Live operations: reporter-draft/editor-approval separation, no self-approval and correction preservation are tested.
+PASS  Audience safety: hashed expiring confirmation/unsubscribe tokens, single use, suppression and DB-backed public-form throttling are tested.
+PASS  Commercial boundaries: campaign creator and approver permissions are separated; invoice creation/payment-recording capabilities are granular and runtime dashboard routes render.
+PASS  Public HTTP/XML: homepage, newsletter, verify/unsubscribe, contact, general sitemap, news sitemap, login and section routes render; both sitemap documents parse with urlset roots.
+PASS  Authenticated HTTP: newsroom dashboard, pitches/assignments, live operations, categories, homepage manager, media library, management overview, advertising, finance and analytics routes render with authorized temporary test sessions; temporary roles/sessions were removed.
+PASS  Security headers/code: CSRF, strict sessions, CSP, frame/content/referrer/permissions/COOP headers, prepared PDO, output escaping and public/private source projections remain active.
+PASS  Secret hygiene: production config and local SQLite are excluded from the release plan; only placeholders/environment lookups and deterministic test-only key material are present in distributable source.
+
+SAFE_FAIL  Media publication requires an approved image processor and malware scanner. GD/Imagick and a scanner are absent locally, so production media approval remains fail-closed.
+BLOCKED_EXTERNAL  Real MySQL 8/MariaDB migration, rollback and concurrent transaction rehearsal (local PDO drivers: sqlite only).
+BLOCKED_EXTERNAL  Reviewed newsletter/password-reset delivery, authenticated sending domain, bounce/complaint processing and provider evidence.
+BLOCKED_EXTERNAL  Remote immutable audit, monitoring/WAF, automated backups and representative restore drill, load testing and penetration testing.
+BLOCKED_EXTERNAL  Human/device accessibility audit, full browser multi-role action E2E and complete 15-scenario acceptance record.
+BLOCKED_EXTERNAL  Rwanda entity/tax/media/data-protection applicability, retention/legal hold, complaints, licensing and sponsored-content approval by accountable professionals.
+DEFERRED  Comments remain disabled until moderation staffing/procedure is accepted.
+DEFERRED  Print/e-paper remains NO-GO until demand, printer/distributor terms and positive unit economics are verified.
+
+Classification: STAGING_CANDIDATE / PRODUCTION_NO_GO / PRINT_NO_GO.
+Evidence: docs/ULTIMATE_IMPLEMENTATION_AUDIT.md, docs/ULTIMATE_TRACEABILITY.md, docs/IMPLEMENTATION_REPORT_ULTIMATE.md and docs/RELEASE_CHECKLIST_ULTIMATE.md.

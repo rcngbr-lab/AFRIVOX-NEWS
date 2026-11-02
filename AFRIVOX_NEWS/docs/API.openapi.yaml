@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: AFRIVOX NEWS Public API
+  version: 1.0.0
+  description: Read-only API. Unpublished content and internal source notes are never returned.
+paths:
+  /api/v1/index.php:
+    get:
+      summary: List published articles
+      parameters:
+        - {name: resource, in: query, schema: {type: string, enum: [articles, article, categories, live]}}
+        - {name: page, in: query, schema: {type: integer, minimum: 1}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 50}}
+        - {name: category, in: query, schema: {type: string}}
+        - {name: slug, in: query, description: Required when resource=article, schema: {type: string}}
+      responses:
+        '200': {description: Successful JSON response}
+        '404': {description: Resource not found}
+        '500': {description: Safe server error response}
