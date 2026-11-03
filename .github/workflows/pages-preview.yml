@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - public-pages/**
+      - AFRIVOX_NEWS/assets/**
       - .github/workflows/pages-preview.yml
   workflow_dispatch:
 
@@ -43,6 +44,18 @@ jobs:
             exit 1
           fi
 
+      - name: Assemble isolated Pages directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf pages-build
+          cp -R public-pages pages-build
+          mkdir -p pages-build/assets
+          cp -R AFRIVOX_NEWS/assets/. pages-build/assets/
+          test -s pages-build/assets/style.css
+          test -s pages-build/assets/afrivox-logo.svg
+          test -s pages-build/assets/editorial/kigali-rwanda-hero-v2.png
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
@@ -51,7 +64,7 @@ jobs:
       - name: Upload static Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public-pages
+          path: pages-build
 
       - name: Deploy GitHub Pages
         id: deployment

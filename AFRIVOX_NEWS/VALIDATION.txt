@@ -1,7 +1,7 @@
 Validation date: 2026-10-30 (Africa/Khartoum client date)
 Release: AFRIVOX NEWS Ultimate phased staging candidate
 
-PASS  PHP syntax: all 49 PHP source files pass php -l on PHP 8.5.5.
+PASS  PHP syntax: all 50 PHP source files pass php -l on PHP 8.5.5.
 PASS  Automated tests: 70 passed, 0 failed.
 PASS  SQLite fresh/upgrade setup: tools/setup_local_sqlite.php completes successfully.
 PASS  Migration preflight: READY; configured encryption/audit keys valid, unknown contact statuses 0, plaintext internal source notes 0, legacy source notes requiring encryption 0.

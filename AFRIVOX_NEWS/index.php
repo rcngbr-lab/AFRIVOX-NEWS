@@ -23,7 +23,7 @@ $lead=$takeSlot('lead')??($takeNext(1)[0]??null);
 $secondary=array_values(array_filter([$takeSlot('secondary_1'),$takeSlot('secondary_2'),$takeSlot('secondary_3'),$takeSlot('secondary_4')]));
 if(count($secondary)<4)$secondary=array_merge($secondary,$takeNext(4-count($secondary)));
 $featured=[];
-foreach($articles as $story){if($lead&&(int)$story['id']===(int)$lead['id'])continue;$featured[(int)$story['id']]=$story;if(count($featured)>=4)break;}
+foreach($articles as $story){$storyId=(int)$story['id'];if(isset($used[$storyId]))continue;$used[$storyId]=true;$featured[$storyId]=$story;if(count($featured)>=4)break;}
 $featured=array_values($featured);
 $latest=array_values(array_filter($articles,static fn(array $story):bool=>!$lead||(int)$story['id']!==(int)$lead['id']));
 $latest=array_slice($latest,0,6);
@@ -61,8 +61,6 @@ function av_home_card(array $story,string $language,string $class=''):void{$cove
 render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwanda, Africa and the world.':'Amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi.',$language);
 ?>
 <main id="main-content" class="afrivox-home" tabindex="-1">
-<?php if(array_filter($articles,static fn(array $story):bool=>!empty($story['is_demo']))):?><div class="container av-demo-alert"><strong><?=e($t('demo'))?></strong><span><?=e($t('demo_text'))?></span></div><?php endif;?>
-
 <section class="container av-hero" aria-label="Featured stories">
 <?php if($lead):$leadCover=media_url($lead['cover_image']??'');?>
   <article class="av-lead"><a href="<?=e(article_url($lead))?>" class="av-lead-image"><?php if($leadCover):?><img src="<?=e($leadCover)?>" fetchpriority="high" alt="<?=e(($lead['image_alt']??'')?:($lead['image_caption']??'')?:$lead['title'])?>"><?php else:?><span class="av-image-fallback">AFRIVOX NEWS</span><?php endif;?><span class="av-lead-overlay"><b><?=e(strtoupper((string)$lead['category_name']))?></b><h1><?=e($lead['title'])?></h1><p><?=e(excerpt($lead['summary'],180))?></p><span class="av-lead-meta">◷ <?=e(relative_time($lead['published_at'],$language))?></span><?php if($lead['is_demo']):?><em>DEMO / URUGERO</em><?php endif;?></span></a></article>
@@ -74,6 +72,8 @@ render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwa
 <nav class="container av-quick-nav" aria-label="News categories"><?php foreach($quickNav as $quickIndex=>[$label,$slug,$color,$icon]):$url=$slug==='Africa'?path('search.php?q=Africa'):($slug==='media'?path('media.php'):path('category.php?slug='.$slug));?><a href="<?=e($url)?>" class="av-quick-item av-quick-<?=e((string)$quickIndex)?>"><span><svg viewBox="0 0 24 24" aria-hidden="true"><?=$icon?></svg></span><b><?=e($label)?></b></a><?php endforeach;?></nav>
 
 <?php if($featured):?><section class="container av-featured"><div class="av-section-title"><h2><?=e($t('featured'))?></h2><a href="<?=e(path('search.php'))?>"><?=e($t('all'))?> <b>→</b></a></div><div class="av-featured-layout"><div class="av-featured-grid"><?php foreach($featured as $story)av_home_card($story,$language);?></div><aside class="av-home-sidebar"><section class="av-newsletter-widget"><div class="av-envelope" aria-hidden="true">✉</div><h2><?=e($t('subscribe'))?></h2><p><?=e($t('subscribe_help'))?></p><form action="<?=e(path('newsletter.php'))?>" method="post"><?=csrf_field()?><div class="honeypot" aria-hidden="true"><label>Website<input type="text" name="website" autocomplete="off" tabindex="-1"></label></div><input type="hidden" name="locale" value="<?=e($language)?>"><label class="sr-only" for="home-newsletter-email"><?=e($t('email'))?></label><div><input id="home-newsletter-email" type="email" name="email" required maxlength="190" autocomplete="email" placeholder="<?=e($t('email'))?>"><button type="submit">Subscribe</button></div><label class="av-consent"><input type="checkbox" name="consent" value="1" required> <?=e($t('consent'))?></label></form></section><section class="av-brand-banner"><img src="<?=e(path('assets/africa-mark.svg'))?>" alt="" aria-hidden="true"><small>AFRIVOX NEWS</small><strong>Africa Has a Voice.</strong><span></span></section></aside></div></section><?php endif;?>
+
+<?php if(array_filter($articles,static fn(array $story):bool=>!empty($story['is_demo']))):?><div class="container av-demo-alert"><strong><?=e($t('demo'))?></strong><span><?=e($t('demo_text'))?></span></div><?php endif;?>
 
 <?php if($latest):?><section class="av-soft-section"><div class="container"><div class="av-section-title"><h2><?=e($t('latest'))?></h2><a href="<?=e(path('search.php'))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-latest-grid"><?php foreach($latest as $story)av_home_card($story,$language);?></div></div></section><?php endif;?>
 

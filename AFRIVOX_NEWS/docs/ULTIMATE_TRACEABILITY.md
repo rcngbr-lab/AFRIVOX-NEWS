@@ -103,7 +103,7 @@ Artifact completeness is separate from operational acceptance. For example, a `C
 | Evidence | Current record |
 |---|---|
 | Local policy/data-integrity suite | Current merged baseline: 70 passed, 0 failed; SQLite setup/upgrade and HTTP/XML/admin render smoke matrices also pass locally |
-| PHP syntax | All 49 current PHP files pass `php -l` on PHP 8.5.5 |
+| PHP syntax | All 50 current PHP files pass `php -l` on PHP 8.5.5 |
 | Migration preflight | Current local result `READY`; MySQL/MariaDB rehearsal still blocked |
 | Audit-chain verification | Current local signed chain verifies; remote immutable export absent |
 | MySQL integration/concurrency | `BLOCKED_EXTERNAL` |

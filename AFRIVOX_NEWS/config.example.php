@@ -12,6 +12,7 @@ return [
   'base_path' => '', // e.g. /news when installed in a subfolder
   'app_url' => 'https://example.rw', // public canonical base URL, without a trailing slash
   'timezone' => 'Africa/Kigali',
+  'default_language' => 'en',
   'db_dsn' => 'mysql:host=localhost;port=3306;dbname=afrivox_news;charset=utf8mb4',
   'db_user' => 'CHANGE_ME',
   'db_password' => 'CHANGE_ME',

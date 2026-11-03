@@ -65,8 +65,10 @@ function sql_now(): string { return db_is_sqlite()?"datetime('now')":'NOW()'; }
 function e(?string $v): string { return htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
 function path(string $sub = ''): string { return rtrim((string)cfg('base_path', ''), '/') . '/' . ltrim($sub, '/'); }
 function site_language(): string {
-    $language=(string)($_GET['lang']??'rw');
-    return in_array($language,['rw','en'],true)?$language:'rw';
+    $default=(string)cfg('default_language','en');
+    if(!in_array($default,['rw','en'],true))$default='en';
+    $language=(string)($_GET['lang']??$default);
+    return in_array($language,['rw','en'],true)?$language:$default;
 }
 function language_url(string $language): string {
     $language=in_array($language,['rw','en'],true)?$language:'rw';
