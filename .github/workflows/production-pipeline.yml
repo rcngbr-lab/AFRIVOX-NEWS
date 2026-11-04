@@ -53,6 +53,14 @@ jobs:
             exit 1
           fi
 
+      - name: Verify fresh local SQLite schema
+        working-directory: AFRIVOX_NEWS
+        shell: bash
+        run: |
+          set -euo pipefail
+          php tools/setup_local_sqlite.php
+          php -r '$db=new PDO("sqlite:storage/local-preview.sqlite"); $columns=$db->query("PRAGMA table_info(article_media)")->fetchAll(PDO::FETCH_ASSOC); if (count($columns) !== 4) { fwrite(STDERR,"article_media schema is missing or incomplete.\n"); exit(1); } echo "article_media schema verified.\n";'
+
       - name: Build deployable artifact
         shell: bash
         run: |
