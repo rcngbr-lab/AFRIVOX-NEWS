@@ -2,7 +2,7 @@
 
 ## Scope and result
 
-This audit covers the static GitHub Pages preview and the production PHP application corrections requested after the homepage integration audit. Source-level and local automated verification pass. GitHub workflow and published Pages evidence are recorded after the release commit is deployed. Production server deployment remains intentionally disabled by the repository safety gate and is not implied by a green source build.
+This audit covers the static GitHub Pages preview and the production PHP application corrections requested after the homepage integration audit. Source-level, local automated and GitHub Pages verification pass for implementation commit `c59a05a`. Production server deployment remains intentionally disabled by the repository safety gate and is not implied by a green source build.
 
 ## Corrected controls
 
@@ -27,7 +27,11 @@ This audit covers the static GitHub Pages preview and the production PHP applica
 - Correction render probes: matching search, wildcard-only search, published article, hidden under-review article and missing policy passed.
 - Production-mode data probe: `published_where()` contained status, publication time and `is_demo=0` gates; the local demo-only public count and search count were both zero.
 - Static export scan: zero placeholder href/actions, fake submit handlers, local-host URLs, PHP destinations and static hreflang links.
-- Browser screenshots at 768, 1024 and 1440 pixels preserved the approved homepage hierarchy. Final live 375-pixel and menu evidence is a release verification item.
+- GitHub Pages workflow run `41787215125` completed successfully, including artifact validation and Pages deployment.
+- Production pipeline run `41787215540` completed successfully: verify/package and status-report jobs passed; the SSH production deployment job was intentionally `skipped` by the unchanged safety gate.
+- Live HTTPS returned 200 for the homepage, capability page, stylesheet and JavaScript, and 404 with the branded non-redirect page for an unknown path.
+- Live Edge device-metrics checks at 375×812, 768×1024, 1024×900 and 1440×1024 reported `scrollWidth == innerWidth` and no page runtime/console errors. Mobile/tablet menu interaction changed `aria-expanded` and navigation state from closed → open → closed.
+- Browser screenshots at all four viewports preserve the approved hierarchy; the 1440-pixel layout tracks the supplied homepage mockup and the 375-pixel page has no horizontal overflow.
 
 ## Remaining external or operational evidence
 
