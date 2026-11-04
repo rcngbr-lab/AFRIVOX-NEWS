@@ -39,20 +39,27 @@ jobs:
           test -s public-pages/404.html
           test -s public-pages/preview-info.html
           test -s public-pages/newsroom-preview.html
+          test -s public-pages/about.html
+          test -s public-pages/contact.html
+          test -s public-pages/media.html
+          test -s public-pages/privacy.html
+          test -s public-pages/search.html
+          test -s public-pages/categories/amakuru.html
+          test -s public-pages/articles/rwanda-green-growth-demo.html
           grep -q 'AFRIVOX NEWS' public-pages/index.html
-          if grep -Eqi 'href="#"|action="#"|onsubmit="return false"' public-pages/index.html; then
-            echo 'Nonfunctional placeholder interaction detected in the Pages homepage.' >&2
+          if grep -ERqi 'href="#"|action="#"|onsubmit="return false"' public-pages --include='*.html'; then
+            echo 'Nonfunctional placeholder interaction detected in the Pages preview.' >&2
             exit 1
           fi
           if grep -Eqi 'http-equiv="refresh"' public-pages/404.html; then
             echo 'The Pages 404 must not automatically redirect.' >&2
             exit 1
           fi
-          if grep -Eqi 'href="/[^" ]*\.php|action="/[^" ]*\.php' public-pages/index.html; then
-            echo 'PHP-only destination leaked into the static Pages homepage.' >&2
+          if grep -ERqi 'href="/[^" ]*\.php|action="/[^" ]*\.php' public-pages --include='*.html'; then
+            echo 'PHP-only destination leaked into the static Pages preview.' >&2
             exit 1
           fi
-          if grep -Eqi 'config\.local|BEGIN [A-Z ]*PRIVATE KEY|local-preview\.sqlite' public-pages/*; then
+          if grep -ERqi 'config\.local|BEGIN [A-Z ]*PRIVATE KEY|local-preview\.sqlite' public-pages; then
             echo 'Private runtime material detected in Pages artifact.' >&2
             exit 1
           fi
