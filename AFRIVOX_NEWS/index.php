@@ -90,7 +90,7 @@ render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwa
   <aside class="av-ad-rail" aria-labelledby="home-advertising-title">
     <div class="av-ad-rail-heading"><div><span><?=e($t('advertisement'))?></span><h2 id="home-advertising-title"><?=e($t('ad_title'))?></h2></div><small>60 × 90</small></div>
     <div class="av-ad-card-grid">
-      <?php foreach(['navy','red','blue','gold'] as $adTheme):?><article class="av-ad-card av-ad-card-<?=e($adTheme)?>"><span class="av-ad-label"><?=e($t('advertisement'))?></span><span class="av-ad-monogram" aria-hidden="true">AD</span><strong><?=e($t('ad_space'))?></strong><small>60 × 90</small></article><?php endforeach;?>
+      <?php foreach(['navy','blue','red','gold'] as $adTheme):?><article class="av-ad-card av-ad-card-<?=e($adTheme)?>"><span class="av-ad-label"><?=e($t('advertisement'))?></span><span class="av-ad-monogram" aria-hidden="true">AD</span><strong><?=e($t('ad_space'))?></strong><small>60 × 90</small></article><?php endforeach;?>
     </div>
     <p class="av-ad-disclosure"><?=e($t('ad_note'))?></p>
     <a class="av-ad-cta" href="<?=e(localized_path('contact.php',$language))?>"><?=e($t('ad_cta'))?> <b>→</b></a>
