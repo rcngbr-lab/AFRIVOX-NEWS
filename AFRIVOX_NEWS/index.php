@@ -4,10 +4,10 @@ require __DIR__.'/app/bootstrap.php';
 $language=site_language();
 $copy=[
   'en'=>[
-    'demo'=>'DEMO CONTENT','demo_text'=>'Stories labelled DEMO are test records from the CMS, not current news.','featured'=>'Featured News','all'=>'View All News','subscribe'=>'Subscribe to Our Newsletter','subscribe_help'=>'Get the latest news delivered to your inbox.','email'=>'Your email address','consent'=>'I agree to receive AFRIVOX NEWS email and can unsubscribe at any time.','latest'=>'Latest News','about'=>'We bring you trusted, accurate and in-depth news from Rwanda, across Africa and around the world. Our mission is to amplify African voices, promote positive change and keep you informed on the issues that matter.','learn'=>'Learn More','empty'=>'No published stories are available yet.','advertisement'=>'ADVERTISEMENT','popular'=>'Most Read','view'=>'View All'
+    'demo'=>'DEMO CONTENT','demo_text'=>'Stories labelled DEMO are test records from the CMS, not current news.','featured'=>'Featured News','all'=>'View All News','subscribe'=>'Subscribe to Our Newsletter','subscribe_help'=>'Get the latest news delivered to your inbox.','email'=>'Your email address','consent'=>'I agree to receive AFRIVOX NEWS email and can unsubscribe at any time.','latest'=>'Latest News','about'=>'We bring you trusted, accurate and in-depth news from Rwanda, across Africa and around the world. Our mission is to amplify African voices, promote positive change and keep you informed on the issues that matter.','learn'=>'Learn More','empty'=>'No published stories are available yet.','advertisement'=>'ADVERTISEMENT','popular'=>'Most Read','view'=>'View All','ad_title'=>'Advertising','ad_space'=>'Your campaign here','ad_cta'=>'Advertise with AFRIVOX NEWS','ad_note'=>'Commercial placements are reviewed separately from editorial coverage.'
   ],
   'rw'=>[
-    'demo'=>'IBIRIMO BY’IGERAGEZA','demo_text'=>'Inkuru ziriho ikimenyetso cya DEMO ni records zo kugerageza CMS; ntabwo ari amakuru y’ubu.','featured'=>'Inkuru Zatoranyijwe','all'=>'Reba Amakuru Yose','subscribe'=>'Iyandikishe kuri Newsletter','subscribe_help'=>'Akira amakuru aheruka kuri email yawe.','email'=>'Email yawe','consent'=>'Nemeye kwakira AFRIVOX NEWS kuri email kandi nshobora kwivana ku rutonde igihe cyose.','latest'=>'Amakuru Aheruka','about'=>'Tubagezaho amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi. Intego yacu ni ukumvikanisha amajwi y’Abanyafurika no kubagezaho ibibazo by’ingenzi.','learn'=>'Menya Byinshi','empty'=>'Nta nkuru zatangajwe ziraboneka.','advertisement'=>'UMWANYA W’AMAMAZA','popular'=>'Izasomwe Cyane','view'=>'Reba Zose'
+    'demo'=>'IBIRIMO BY’IGERAGEZA','demo_text'=>'Inkuru ziriho ikimenyetso cya DEMO ni records zo kugerageza CMS; ntabwo ari amakuru y’ubu.','featured'=>'Inkuru Zatoranyijwe','all'=>'Reba Amakuru Yose','subscribe'=>'Iyandikishe kuri Newsletter','subscribe_help'=>'Akira amakuru aheruka kuri email yawe.','email'=>'Email yawe','consent'=>'Nemeye kwakira AFRIVOX NEWS kuri email kandi nshobora kwivana ku rutonde igihe cyose.','latest'=>'Amakuru Aheruka','about'=>'Tubagezaho amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi. Intego yacu ni ukumvikanisha amajwi y’Abanyafurika no kubagezaho ibibazo by’ingenzi.','learn'=>'Menya Byinshi','empty'=>'Nta nkuru zatangajwe ziraboneka.','advertisement'=>'UMWANYA W’AMAMAZA','popular'=>'Izasomwe Cyane','view'=>'Reba Zose','ad_title'=>'Kwamamaza','ad_space'=>'Kwamamaza kwawe hano','ad_cta'=>'Yamamaza kuri AFRIVOX NEWS','ad_note'=>'Kwamamaza kugenzurwa ukwako kandi ntikuvangwa n’inkuru z’ubwanditsi.'
   ]
 ];
 $t=static fn(string $key):string=>$copy[$language][$key]??$key;
@@ -83,7 +83,19 @@ render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwa
 
 <?php if($latest):?><section class="av-soft-section"><div class="container"><div class="av-section-title"><h2><?=e($t('latest'))?></h2><a href="<?=e(localized_path('search.php',$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-latest-grid"><?php foreach($latest as $story)av_home_card($story,$language);?></div></div></section><?php endif;?>
 
-<?php foreach($categorySections as $section):?><section class="container av-category-section"><div class="av-section-title"><h2><?=e($section['title'])?></h2><a href="<?=e(localized_path('category.php?slug='.$section['slug'],$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-category-grid"><?php foreach($section['items'] as $story)av_home_card($story,$language);?></div></section><?php endforeach;?>
+<?php if($categorySections):?><section class="container av-category-layout">
+  <div class="av-category-feed">
+    <?php foreach($categorySections as $section):?><section class="av-category-section"><div class="av-section-title"><h2><?=e($section['title'])?></h2><a href="<?=e(localized_path('category.php?slug='.$section['slug'],$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-category-grid"><?php foreach($section['items'] as $story)av_home_card($story,$language);?></div></section><?php endforeach;?>
+  </div>
+  <aside class="av-ad-rail" aria-labelledby="home-advertising-title">
+    <div class="av-ad-rail-heading"><div><span><?=e($t('advertisement'))?></span><h2 id="home-advertising-title"><?=e($t('ad_title'))?></h2></div><small>60 × 90</small></div>
+    <div class="av-ad-card-grid">
+      <?php foreach(['navy','red','blue','gold'] as $adTheme):?><article class="av-ad-card av-ad-card-<?=e($adTheme)?>"><span class="av-ad-label"><?=e($t('advertisement'))?></span><span class="av-ad-monogram" aria-hidden="true">AD</span><strong><?=e($t('ad_space'))?></strong><small>60 × 90</small></article><?php endforeach;?>
+    </div>
+    <p class="av-ad-disclosure"><?=e($t('ad_note'))?></p>
+    <a class="av-ad-cta" href="<?=e(localized_path('contact.php',$language))?>"><?=e($t('ad_cta'))?> <b>→</b></a>
+  </aside>
+</section><?php endif;?>
 
 <?php if($trending):?><section class="container av-category-section"><div class="av-section-title"><h2><?=e($t('popular'))?></h2></div><div class="av-category-grid"><?php foreach($trending as $story)av_home_card(preferred_article_language($story,$language),$language);?></div></section><?php endif;?>
 
