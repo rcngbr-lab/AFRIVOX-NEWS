@@ -68,6 +68,7 @@ jobs:
             --exclude='*.zip' \
             AFRIVOX_NEWS/ build/AFRIVOX_NEWS/
           test -f build/AFRIVOX_NEWS/index.php
+          test -f build/AFRIVOX_NEWS/health.php
           test -f build/AFRIVOX_NEWS/config.example.php
           test -f build/AFRIVOX_NEWS/uploads/.htaccess
           test ! -e build/AFRIVOX_NEWS/config.local.php
@@ -142,4 +143,35 @@ jobs:
           curl --fail --silent --show-error --location \
             --retry 4 --retry-delay 5 --max-time 30 \
             "$HEALTHCHECK_URL" > /dev/null
+
+  report-status:
+    name: Report verification and deployment status
+    needs: [verify-and-package, deploy-production]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish unambiguous pipeline result
+        shell: bash
+        env:
+          VERIFY_RESULT: ${{ needs.verify-and-package.result }}
+          DEPLOY_RESULT: ${{ needs.deploy-production.result }}
+          DEPLOY_ENABLED: ${{ vars.PRODUCTION_DEPLOY_ENABLED }}
+        run: |
+          {
+            echo '## AFRIVOX NEWS pipeline status'
+            echo
+            echo "- Verification/package: **${VERIFY_RESULT}**"
+            echo "- Production deployment: **${DEPLOY_RESULT}**"
+            if [[ "$VERIFY_RESULT" != "success" ]]; then
+              echo '- Meaning: verification failed; no production release is approved.'
+            elif [[ "$DEPLOY_RESULT" == "success" ]]; then
+              echo '- Meaning: files were deployed and the configured live health check passed.'
+            elif [[ "$DEPLOY_RESULT" == "skipped" && "$DEPLOY_ENABLED" != "true" ]]; then
+              echo '- Meaning: verification passed; deployment was intentionally disabled by the production safety gate.'
+            elif [[ "$DEPLOY_RESULT" == "skipped" ]]; then
+              echo '- Meaning: deployment was skipped by an event, branch, or environment condition.'
+            else
+              echo '- Meaning: deployment was attempted but did not complete successfully.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 

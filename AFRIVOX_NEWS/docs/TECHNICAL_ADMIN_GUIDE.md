@@ -140,7 +140,7 @@ Then record an HTTPS/browser/role acceptance matrix covering at least:
 - unauthorized-role redirects/denials and direct requests to protected directories;
 - backup restore, source decryption by an authorized test account, audit verification and rollback rehearsal.
 
-The current local baseline is 70 automated tests passing and 50 PHP files linting on SQLite/PHP 8.5.5. This is evidence for the source candidate, not evidence that a production host, MySQL, scanner, mail provider, monitoring or restore process works.
+The current local baseline is 70 automated tests passing and 51 PHP files linting on SQLite/PHP 8.5.5. This is evidence for the source candidate, not evidence that a production host, MySQL, scanner, mail provider, monitoring or restore process works.
 
 ## 10. Identity, access and operational administration
 

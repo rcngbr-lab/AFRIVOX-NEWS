@@ -1,7 +1,7 @@
-Validation date: 2026-10-30 (Africa/Khartoum client date)
+Validation date: 2026-11-04 (Africa/Khartoum client date)
 Release: AFRIVOX NEWS Ultimate phased staging candidate
 
-PASS  PHP syntax: all 50 PHP source files pass php -l on PHP 8.5.5.
+PASS  PHP syntax: all 51 PHP source files pass php -l on PHP 8.5.5.
 PASS  Automated tests: 70 passed, 0 failed.
 PASS  SQLite fresh/upgrade setup: tools/setup_local_sqlite.php completes successfully.
 PASS  Migration preflight: READY; configured encryption/audit keys valid, unknown contact statuses 0, plaintext internal source notes 0, legacy source notes requiring encryption 0.
@@ -12,6 +12,9 @@ PASS  Live operations: reporter-draft/editor-approval separation, no self-approv
 PASS  Audience safety: hashed expiring confirmation/unsubscribe tokens, single use, suppression and DB-backed public-form throttling are tested.
 PASS  Commercial boundaries: campaign creator and approver permissions are separated; invoice creation/payment-recording capabilities are granular and runtime dashboard routes render.
 PASS  Public HTTP/XML: homepage, newsletter, verify/unsubscribe, contact, general sitemap, news sitemap, login and section routes render; both sitemap documents parse with urlset roots.
+PASS  Public correction controls: search is prepared, paginated, language-scoped and published-only; wildcard-only input cannot enumerate all content; future/unpublished and production demo content are excluded; invalid articles and policies return real 404 responses.
+PASS  Static Pages safety: no fake forms, placeholder destinations, PHP-only links or redirecting 404; unavailable backend features link to an explicit noindex capability page; Pages workflow enforces these invariants.
+PASS  Deployment reporting: the production workflow validates health.php and reports verification separately from successful, failed or intentionally gated deployment.
 PASS  Authenticated HTTP: newsroom dashboard, pitches/assignments, live operations, categories, homepage manager, media library, management overview, advertising, finance and analytics routes render with authorized temporary test sessions; temporary roles/sessions were removed.
 PASS  Security headers/code: CSRF, strict sessions, CSP, frame/content/referrer/permissions/COOP headers, prepared PDO, output escaping and public/private source projections remain active.
 PASS  Secret hygiene: production config and local SQLite are excluded from the release plan; only placeholders/environment lookups and deterministic test-only key material are present in distributable source.

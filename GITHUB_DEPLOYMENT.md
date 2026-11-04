@@ -19,6 +19,7 @@ GitHub Pages publishes only the isolated `public-pages/` design preview at `http
 7. Uploads the verified artifact for 14 days.
 8. Deploys only from `main`, only after verification, and only when the repository variable `PRODUCTION_DEPLOY_ENABLED` is exactly `true`.
 9. Requires a successful HTTPS health check after deployment.
+10. Always publishes a workflow summary that distinguishes verification success/failure from deployment success/failure/skipped status.
 
 The deployment job uses minimal repository permissions (`contents: read`), strict host-key checking and the protected GitHub `production` environment. It preserves server-side `config.local.php`, `storage/`, `uploads/` and `app/installed.lock` while synchronizing application source.
 
@@ -33,7 +34,7 @@ In the repository settings:
    - `PRODUCTION_SSH_PRIVATE_KEY` — a dedicated, restricted deployment key
    - `PRODUCTION_SSH_KNOWN_HOSTS` — the reviewed host-key line, obtained out of band
    - `PRODUCTION_DEPLOY_PATH` — the application document root on the server
-   - `PRODUCTION_HEALTHCHECK_URL` — the canonical HTTPS homepage URL
+   - `PRODUCTION_HEALTHCHECK_URL` — the canonical HTTPS `health.php` URL, for example `https://news.example/health.php`; it returns HTTP 200 only when the application configuration and database probe succeed
 3. On the server, create `config.local.php` privately and configure MySQL credentials, production URLs, key identifiers and dispatchers. Never store this file in GitHub.
 4. Configure `AFRIVOX_APP_KEY` and `AFRIVOX_AUDIT_KEY` in the host secret manager or protected server environment.
 5. Confirm the deploy user can write application code but cannot read unrelated accounts or system secrets.

@@ -23,7 +23,7 @@ document.addEventListener('click', async (event) => {
   try {
     await navigator.clipboard.writeText(window.location.href);
     const old = btn.textContent;
-    btn.textContent = 'LINK YAKOPIWE ✓';
+    btn.textContent = document.documentElement.lang === 'en' ? 'LINK COPIED ✓' : 'LINK YAKOPIWE ✓';
     setTimeout(() => { btn.textContent = old; }, 1700);
-  } catch (e) { btn.textContent = 'KOPIYA URL MURI BROWSER'; }
+  } catch (e) { btn.textContent = document.documentElement.lang === 'en' ? 'COPY THE URL FROM YOUR BROWSER' : 'KOPIYA URL MURI BROWSER'; }
 });

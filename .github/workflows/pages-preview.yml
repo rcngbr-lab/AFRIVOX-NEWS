@@ -37,8 +37,21 @@ jobs:
           set -euo pipefail
           test -s public-pages/index.html
           test -s public-pages/404.html
+          test -s public-pages/preview-info.html
           test -s public-pages/newsroom-preview.html
           grep -q 'AFRIVOX NEWS' public-pages/index.html
+          if grep -Eqi 'href="#"|action="#"|onsubmit="return false"' public-pages/index.html; then
+            echo 'Nonfunctional placeholder interaction detected in the Pages homepage.' >&2
+            exit 1
+          fi
+          if grep -Eqi 'http-equiv="refresh"' public-pages/404.html; then
+            echo 'The Pages 404 must not automatically redirect.' >&2
+            exit 1
+          fi
+          if grep -Eqi 'href="/[^" ]*\.php|action="/[^" ]*\.php' public-pages/index.html; then
+            echo 'PHP-only destination leaked into the static Pages homepage.' >&2
+            exit 1
+          fi
           if grep -Eqi 'config\.local|BEGIN [A-Z ]*PRIVATE KEY|local-preview\.sqlite' public-pages/*; then
             echo 'Private runtime material detected in Pages artifact.' >&2
             exit 1
