@@ -1,4 +1,17 @@
 <?php
+
+// Video: approved provider URLs, trusted identifiers, and publishing visibility.
+check(VideoService::youtubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')==='dQw4w9WgXcQ','valid YouTube watch URL');
+check(VideoService::youtubeId('https://youtu.be/dQw4w9WgXcQ')==='dQw4w9WgXcQ','valid YouTube short URL');
+check(VideoService::youtubeId('https://www.youtube.com/shorts/dQw4w9WgXcQ')==='dQw4w9WgXcQ','valid YouTube Shorts URL');
+check(VideoService::youtubeId('http://www.youtube.com/watch?v=dQw4w9WgXcQ')===null,'HTTP video URL refused');
+check(VideoService::youtubeId('https://www.youtube.com.evil.invalid/watch?v=dQw4w9WgXcQ')===null,'spoofed YouTube domain refused');
+check(VideoService::youtubeId('https://youtu.be.evil.invalid/dQw4w9WgXcQ')===null,'spoofed short URL refused');
+check(VideoService::youtubeId('https://youtu.be/dQw4w9WgXcQ:443')===null,'unexpected port refused');
+check(VideoService::embedUrl('dQw4w9WgXcQ')==='https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0','privacy-enhanced video iframe URL');
+check(str_contains(VideoService::publicWhere(),'rights_expires_at'),'expired video rights excluded from public display');
+
+
 declare(strict_types=1);
 require dirname(__DIR__).'/app/EditorialWorkflow.php';
 require dirname(__DIR__).'/app/Security.php';
