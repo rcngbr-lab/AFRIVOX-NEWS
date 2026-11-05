@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__.'/EditorialWorkflow.php';
 require_once __DIR__.'/Security.php';
 require_once __DIR__.'/MediaService.php';
+require_once __DIR__.'/VideoService.php';
 require_once __DIR__.'/AdService.php';
 require_once __DIR__.'/PasswordResetService.php';
 $configPath = dirname(__DIR__) . '/config.local.php';
