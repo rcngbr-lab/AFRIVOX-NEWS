@@ -9,6 +9,7 @@ if($category!==''){
 }
 $videos=query_all("SELECT v.id,v.slug,v.title,v.description,v.provider_video_id,v.creator,v.source_organization,v.published_at,v.language,v.article_id,c.name AS category_name,c.slug AS category_slug,a.slug AS article_slug,a.status AS article_status,a.published_at AS article_published,a.is_demo AS article_demo FROM video_clips v JOIN categories c ON c.id=v.category_id LEFT JOIN articles a ON a.id=v.article_id WHERE ".$where." ORDER BY v.published_at DESC LIMIT 48",$params);
 $categories=query_all('SELECT DISTINCT c.name,c.slug FROM categories c JOIN video_clips v ON v.category_id=c.id WHERE '.VideoService::publicWhere('v').' ORDER BY c.name');
+$photos=query_all(public_article_select()." WHERE ".published_where()." AND a.type='photo' ORDER BY a.published_at DESC LIMIT 24");
 render_header($language==='en'?'Videos & Visual Journalism':'Video n’Amakuru mu Mashusho','',$language);
 ?>
 <main id="main-content" class="container video-hub">
@@ -23,4 +24,5 @@ $linked=$v['article_slug']&&$v['article_status']==='published'&&$v['article_publ
 <?php endforeach;?></div>
 <?php else:?><p class="empty-state"><?=$language==='en'?'No approved and published videos are available.':'Nta video zemejwe kandi zatangajwe ziraboneka.'?></p><?php endif;?>
 </main>
+<?php if($photos):?><section class="video-photo-section"><h2><?=$language==='en'?'Photo stories':'Inkuru z’amafoto'?></h2><div class="stories-grid archive-grid"><?php foreach($photos as $photo)card($photo);?></div></section><?php endif;?>
 <?php render_footer(); ?>
