@@ -82,7 +82,7 @@ Upload a safe test image and an invalid test file. Verify quarantine, complete r
 4. Approve with a separate publisher identity.
 5. Upload a fictional 600×900 creative with alt text, HTTPS destination, disclosure, rights holder and licence/contract reference; confirm unsafe types, wrong ratio and missing rights are rejected.
 6. Submit the creative; confirm its creator cannot approve it; approve it with the publisher.
-7. Create a non-overlapping Homepage Right 1–4 placement and activate only inside both approved date windows.
+7. Create a non-overlapping Homepage Right 1–4 or Sitewide Luxury Banner placement and activate only inside both approved date windows.
 8. Confirm visible disclosure, sponsored-link attributes, automatic placeholder after pause/expiry and audit entries.
 9. Generate served/viewable/click test events and explain why privacy-preserving operational counts are not certified invoice evidence.
 10. Identify the remaining external contract, scanner, billing-verification and reconciliation evidence.
