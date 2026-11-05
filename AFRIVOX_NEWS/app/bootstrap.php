@@ -37,7 +37,7 @@ header('X-Frame-Options: SAMEORIGIN');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()');
 header('Cross-Origin-Opener-Policy: same-origin');
 header('X-Permitted-Cross-Domain-Policies: none');
-header("Content-Security-Policy: default-src 'self'; img-src 'self' https://images.unsplash.com data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; frame-src https://www.youtube-nocookie.com; base-uri 'self'; form-action 'self'; object-src 'none'");
+header("Content-Security-Policy: default-src 'self'; img-src 'self' https://images.unsplash.com https://i.ytimg.com data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; frame-src https://www.youtube-nocookie.com; base-uri 'self'; form-action 'self'; object-src 'none'");
 if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') header('Strict-Transport-Security: max-age=31536000');
 if(str_contains(str_replace('\\','/',(string)($_SERVER['SCRIPT_NAME']??'')),'/admin/'))header('Cache-Control: no-store, private, max-age=0');
 function cfg(string $key, $default = null) { global $cfg; return $cfg[$key] ?? $default; }
