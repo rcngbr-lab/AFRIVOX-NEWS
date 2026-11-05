@@ -1,6 +1,7 @@
 <?php require dirname(__DIR__).'/app/bootstrap.php';$me=require_login();$module=(string)($_GET['module']??'overview');$error='';
 function module_redirect(string $module):never{header('Location: '.path('admin/modules.php?module='.rawurlencode($module)));exit;}
 function module_require_any(array $permissions):void{foreach($permissions as $permission)if(can($permission))return;http_response_code(403);exit('Permission denied.');}
+if($module==='advertising'){module_require_any(['advertising.manage','advertising.approve']);header('Location: '.path('admin/advertising.php'));exit;}
 function module_currency(string $value):string{$currency=strtoupper(trim($value));if(!preg_match('/^[A-Z]{3}$/',$currency))throw new RuntimeException('A valid three-letter currency is required.');return $currency;}
 function module_date(string $value,string $label,bool $future=false):string{$time=strtotime(trim($value));if($time===false||($future&&$time<=time()))throw new RuntimeException($label.' must be a valid'.($future?' future':'').' date and time.');return date('Y-m-d H:i:s',$time);}
 function module_money(int $minor,string $currency):string{$zero=in_array(strtoupper($currency),['RWF','JPY'],true);return strtoupper($currency).' '.number_format($zero?$minor:$minor/100,$zero?0:2);}

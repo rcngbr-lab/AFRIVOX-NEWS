@@ -26,16 +26,16 @@
 - Staff suspension, multiple-role assignments, forced session revocation, role-aware access and audit history.
 - Private media quarantine, mandatory rights metadata, independent approval, MIME/dimension checks and GD re-encoding; nothing becomes public before approval and production scanning can fail closed.
 - Key-ID based confidential-data encryption rotation, confidential-source access logging, optimistic article locks and HMAC-chained audit events with a verifier CLI.
-- Database-backed Newsroom, Audience, Advertising, Finance, first-party Analytics and System Administration modules. Campaign creation/approval and invoice/payment identity separation are enforced, while full CRM, ad delivery and external reconciliation remain incomplete.
+- Database-backed Newsroom, Audience, Advertising, Finance, first-party Analytics and System Administration modules. Advertising includes licensed 60×90 creative quarantine, independent campaign/creative approval, four scheduled homepage placements, automatic expiry and privacy-preserving served/viewable/click counts; invoice/payment identity separation is enforced.
 - HTTPS-aware cookies, prepared SQL statements, CSRF protection, HTML escaping and login throttling.
 - 12 **fictional DEMO editorial stories** and 12 original SVG concept illustrations for testing; removable from admin.
 - `preview.html` and `admin-preview.html` — open offline without PHP or a database; these show visual design only, not functioning backend.
 
 ## What is NOT finished — important
 
-**This is a staging candidate, not an independently verified production-ready news enterprise.** The local environment lacks `pdo_mysql`, PHP GD/Imagick, a malware scanner and a live MySQL server. Local SQLite setup and **70 automated policy/data-integrity tests pass**; public and authenticated route smoke tests pass. Real MySQL/MariaDB migration, positive upload, complete multi-role publishing/commercial E2E, accessibility/device testing and production operations still require isolated staging.
+**This is a staging candidate, not an independently verified production-ready news enterprise.** The local environment lacks `pdo_mysql`, a malware scanner and a live MySQL server. Local SQLite setup, secure GD advertising upload, multi-role advertising delivery acceptance and **74 automated policy/data-integrity tests pass**; public and authenticated route smoke tests pass. Real MySQL/MariaDB migration, production scanner integration, complete publishing E2E, accessibility/device testing and production operations still require isolated staging.
 
-Not implemented or not independently verified: payment-provider processing and external statement reconciliation; real double-opt-in email delivery; full legal/privacy approval; malware scanning; video transcoding/storage; comments/moderation; live ad delivery/measurement; full CRM/quotes/contracts; completed multilingual translation assignment UI; anonymous secure-drop portal; push notifications; CDN/high-availability scaling; automated backup infrastructure; penetration testing; production monitoring and disaster recovery.
+Not implemented or not independently verified: payment-provider processing and external statement reconciliation; real double-opt-in email delivery; full legal/privacy approval; production malware scanning; video transcoding/storage; comments/moderation; certified/billable third-party ad measurement and full CRM/quotes/contracts; completed multilingual translation assignment UI; anonymous secure-drop portal; push notifications; CDN/high-availability scaling; automated backup infrastructure; penetration testing; production monitoring and disaster recovery.
 
 **Do not enter real confidential tips or live customer data until the privacy, retention, security and operational obligations have been completed.** Contact and newsletter forms store submitted information in the MySQL database.
 
@@ -76,6 +76,7 @@ Not implemented or not independently verified: payment-provider processing and e
 ├── media.php             Photo/video article archive
 ├── contact.php           Contact form / corrections intake
 ├── newsletter.php        Double-opt-in request (delivery provider still external)
+├── ad-event.php          First-party ad served/viewable/click event intake
 ├── verify-newsletter.php Confirmation endpoint
 ├── unsubscribe-newsletter.php  One-click suppression endpoint
 ├── about.php             Demonstration editorial policy
@@ -95,6 +96,7 @@ Not implemented or not independently verified: payment-provider processing and e
 ├── admin/categories.php  Taxonomy administration
 ├── admin/homepage-manager.php  Scheduled homepage curation
 ├── admin/modules.php     Audience, campaigns, invoices/payments, analytics, system
+├── admin/advertising.php Licensed creative review, placements, activation and metrics
 ├── cli/                  Source encryption and scheduled publication commands
 ├── assets/               Styles, JS, SVG brand illustrations
 ├── uploads/              Approved media uploads (execution disabled)
@@ -124,11 +126,11 @@ The backend enforces a separate approver for approval and retains transitions/re
 
 ## Database
 
-The normalized MySQL schema covers users/multiple roles, encrypted-source fields, revisions, workflow/checks, pitches/assignments, taxonomy, media rights, live reporting, audience consent, advertising, integer-minor-unit invoices/payments, first-party analytics, notifications, audit logs and settings. Existing installations take a verified backup, run `php cli/migration_preflight.php`, then apply the additive migrations in this order: `20261028_phase2.sql`, `20261028_p0_security_mms.sql`, `20261029_v3_security_gates.sql`, `20261029_v4_newsroom_operations.sql`, `20261029_v5_taxonomy.sql`, and `20261029_v5_audience.sql`. Rehearse the exact sequence and rollback on representative MySQL/MariaDB staging before production. Run `php cli/encrypt_legacy_sources.php --apply` only under the approved maintenance procedure.
+The normalized MySQL schema covers users/multiple roles, encrypted-source fields, revisions, workflow/checks, pitches/assignments, taxonomy, media rights, live reporting, audience consent, advertising, integer-minor-unit invoices/payments, first-party analytics, notifications, audit logs and settings. Existing installations take a verified backup, run `php cli/migration_preflight.php`, then apply the additive migrations in this order: `20261028_phase2.sql`, `20261028_p0_security_mms.sql`, `20261029_v3_security_gates.sql`, `20261029_v4_newsroom_operations.sql`, `20261029_v5_taxonomy.sql`, `20261029_v5_audience.sql`, and `20261105_v6_ad_delivery.sql`. Rehearse the exact sequence and rollback on representative MySQL/MariaDB staging before production. Run `php cli/encrypt_legacy_sources.php --apply` only under the approved maintenance procedure.
 
 ## Verification
 
-Run `php tools/setup_local_sqlite.php`, `php cli/migration_preflight.php`, `php tests/run.php` and `php cli/verify_audit_chain.php`, then syntax-check all PHP files and execute the HTTP/role matrix. The current local automated result is **70 passed, 0 failed**. SQLite is only a local preview; production remains MySQL/MariaDB. Start with `docs/ULTIMATE_IMPLEMENTATION_AUDIT.md`, `docs/ULTIMATE_TRACEABILITY.md`, `docs/IMPLEMENTATION_REPORT_ULTIMATE.md` and `docs/RELEASE_CHECKLIST_ULTIMATE.md` for exact status and launch blockers.
+Run `php tools/setup_local_sqlite.php`, `php cli/migration_preflight.php`, `php tests/run.php` and `php cli/verify_audit_chain.php`, then syntax-check all PHP files and execute the HTTP/role matrix. The current local automated result is **74 passed, 0 failed**. SQLite is only a local preview; production remains MySQL/MariaDB. Start with `docs/ULTIMATE_IMPLEMENTATION_AUDIT.md`, `docs/ULTIMATE_TRACEABILITY.md`, `docs/IMPLEMENTATION_REPORT_ULTIMATE.md` and `docs/RELEASE_CHECKLIST_ULTIMATE.md` for exact status and launch blockers.
 
 ## Branding
 
@@ -138,7 +140,7 @@ The homepage never invents news to fill the design. It reads published CMS recor
 
 ## Commercial operations
 
-Advertiser/campaign records, independent campaign approval, auditable invoice/payment ledgers, idempotency keys and invoice-creator/payment-recorder separation are included. There is no quote/contract repository, payment gateway, bank/mobile-money reconciliation import, live ad serving, targeting or certified impression billing; homepage ad content remains a clearly labelled placeholder.
+Advertiser/campaign records, independent campaign and creative approval, private rights-aware upload, four time-bounded homepage positions, automatic fallback/expiry, operational served/viewable/click counts, auditable invoice/payment ledgers, idempotency keys and invoice-creator/payment-recorder separation are included. Live links use a visible disclosure and `rel="sponsored noopener"`. There is no quote/contract repository, payment gateway, bank/mobile-money reconciliation import, behavioral targeting or certified impression billing; measurement contains no IP, referrer or user-agent and must not be used as invoice-grade evidence.
 
 ## More documentation
 

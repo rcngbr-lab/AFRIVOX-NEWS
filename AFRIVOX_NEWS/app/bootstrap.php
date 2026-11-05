@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__.'/EditorialWorkflow.php';
 require_once __DIR__.'/Security.php';
 require_once __DIR__.'/MediaService.php';
+require_once __DIR__.'/AdService.php';
 require_once __DIR__.'/PasswordResetService.php';
 $configPath = dirname(__DIR__) . '/config.local.php';
 if (!is_file($configPath)) {
@@ -196,6 +197,12 @@ function active_homepage_articles(): array {
     $slots=[];
     foreach($rows as $row){$key=(string)$row['homepage_slot'];unset($row['homepage_slot']);if(!isset($slots[$key]))$slots[$key]=$row;}
     return $slots;
+}
+function active_homepage_ads(string $language): array {
+    if(!in_array($language,['en','rw'],true))$language='en';$now=date('Y-m-d H:i:s');
+    try{$rows=query_all("SELECT p.id placement_id,p.slot_key,p.starts_at placement_start,p.ends_at placement_end,cr.id creative_id,cr.title,cr.alt_text,cr.destination_url,cr.button_text,cr.locale,cr.disclosure,cr.public_path,c.id campaign_id,c.name campaign_name,a.name advertiser_name FROM ad_placements p JOIN ad_creatives cr ON cr.id=p.creative_id JOIN ad_campaigns c ON c.id=cr.campaign_id JOIN advertisers a ON a.id=c.advertiser_id WHERE p.status='active' AND cr.status='approved' AND cr.public_path IS NOT NULL AND c.status='active' AND p.starts_at<=? AND p.ends_at>? AND c.starts_at<=? AND c.ends_at>? AND cr.locale IN ('all',?) ORDER BY p.slot_key,p.updated_at DESC",[$now,$now,$now,$now,$language]);}
+    catch(Throwable $e){error_log('Active advertisement lookup failed: '.$e->getMessage());return [];}
+    $slots=[];foreach($rows as $row)if(!isset($slots[$row['slot_key']]))$slots[$row['slot_key']]=$row;return $slots;
 }
 function published_articles(int $limit=12, ?string $category=null, int $offset=0,?string $language=null): array {
     $limit=max(1,min(48,$limit)); $offset=max(0,$offset);

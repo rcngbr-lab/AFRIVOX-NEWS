@@ -106,3 +106,30 @@ document.querySelectorAll('[data-av-headline-slider]').forEach((slider) => {
   show(current);
   start();
 });
+
+(() => {
+  const cards = Array.from(document.querySelectorAll('[data-ad-placement][data-ad-event-url]'));
+  if (!cards.length) return;
+  const pageToken = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const sent = new WeakMap();
+  const report = (card, eventType) => {
+    const events = sent.get(card) || new Set();
+    if (events.has(eventType)) return;
+    events.add(eventType); sent.set(card, events);
+    const body = new URLSearchParams({ placement_id: card.dataset.adPlacement, event_type: eventType, token: `${pageToken}-${card.dataset.adPlacement}` });
+    if (navigator.sendBeacon) navigator.sendBeacon(card.dataset.adEventUrl, new Blob([body.toString()], { type: 'application/x-www-form-urlencoded;charset=UTF-8' }));
+    else fetch(card.dataset.adEventUrl, { method: 'POST', body, credentials: 'same-origin', keepalive: true }).catch(() => {});
+  };
+  const states = new Map();
+  const scheduleView = (card) => {
+    const state = states.get(card); if (!state || state.ratio < 0.5 || document.hidden || state.timer) return;
+    state.timer = window.setTimeout(() => { state.timer = null; if (state.ratio >= 0.5 && !document.hidden) { report(card, 'viewable'); observer.unobserve(card); } }, 1000);
+  };
+  const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
+    const state = states.get(entry.target); state.ratio = entry.intersectionRatio;
+    if (state.ratio < 0.5 && state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+    scheduleView(entry.target);
+  }), { threshold: [0, 0.5, 1] });
+  cards.forEach((card) => { states.set(card, { ratio: 0, timer: null }); report(card, 'served'); card.addEventListener('click', () => report(card, 'click'), { passive: true }); observer.observe(card); });
+  document.addEventListener('visibilitychange', () => cards.forEach((card) => { const state = states.get(card); if (document.hidden && state.timer) { window.clearTimeout(state.timer); state.timer = null; } else scheduleView(card); }));
+})();

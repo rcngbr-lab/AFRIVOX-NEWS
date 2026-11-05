@@ -90,6 +90,7 @@ Generate independent high-entropy secrets in the approved secret manager. Never 
    4. `20261029_v4_newsroom_operations.sql`
    5. `20261029_v5_taxonomy.sql`
    6. `20261029_v5_audience.sql`
+   7. `20261105_v6_ad_delivery.sql`
 5. Record start/end time, operator, release checksum, exact SQL artifact, row counts, warnings and constraints.
 6. Run preflight again and execute the validation in section 9 before admitting traffic.
 
@@ -136,11 +137,11 @@ Then record an HTTPS/browser/role acceptance matrix covering at least:
 - pitch → assignment → draft → submission → specialist gates → independent approval → publish;
 - scheduled publication, homepage fallback/curation, live update independent approval/correction and audit history;
 - media quarantine, failed scan, rights approval and public projection excluding source data;
-- campaign creator/approver separation and invoice/payment identity separation;
+- campaign/creative creator-approver separation, licensed 2:3 creative validation, placement activation/expiry, privacy-preserving ad-event deduplication and invoice/payment identity separation;
 - unauthorized-role redirects/denials and direct requests to protected directories;
 - backup restore, source decryption by an authorized test account, audit verification and rollback rehearsal.
 
-The current local baseline is 70 automated tests passing and 51 PHP files linting on SQLite/PHP 8.5.5. This is evidence for the source candidate, not evidence that a production host, MySQL, scanner, mail provider, monitoring or restore process works.
+The current local baseline is 74 automated tests passing, all PHP files linting, and a successful multi-role advertising delivery acceptance on SQLite/PHP 8.5. This is evidence for the source candidate, not evidence that a production host, MySQL, scanner, mail provider, monitoring or restore process works.
 
 ## 10. Identity, access and operational administration
 

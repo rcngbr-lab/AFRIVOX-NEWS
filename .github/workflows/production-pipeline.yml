@@ -27,7 +27,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: pdo_sqlite, openssl, fileinfo
+          extensions: pdo_sqlite, openssl, fileinfo, gd
           coverage: none
 
       - name: Verify PHP syntax
@@ -59,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           php tools/setup_local_sqlite.php
-          php -r '$db=new PDO("sqlite:storage/local-preview.sqlite"); $columns=$db->query("PRAGMA table_info(article_media)")->fetchAll(PDO::FETCH_ASSOC); if (count($columns) !== 4) { fwrite(STDERR,"article_media schema is missing or incomplete.\n"); exit(1); } echo "article_media schema verified.\n";'
+          php -r '$db=new PDO("sqlite:storage/local-preview.sqlite"); $media=$db->query("PRAGMA table_info(article_media)")->fetchAll(PDO::FETCH_ASSOC); $ads=$db->query("PRAGMA table_info(ad_events)")->fetchAll(PDO::FETCH_ASSOC); if (count($media) !== 4 || count($ads) !== 5) { fwrite(STDERR,"Media or advertising delivery schema is missing or incomplete.\n"); exit(1); } echo "Media and advertising delivery schema verified.\n";'
 
       - name: Build deployable artifact
         shell: bash

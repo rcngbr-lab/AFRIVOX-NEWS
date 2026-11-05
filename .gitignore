@@ -10,6 +10,7 @@
 **/*.sqlite
 **/*.sqlite-*
 **/*.log
+AFRIVOX_NEWS_PRIVATE_MEDIA_LOCAL/
 
 # Release archives and local tooling output
 *.zip
