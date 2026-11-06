@@ -86,6 +86,7 @@ Read the recorded explanation, change only what is required, add a useful revisi
 
 - **Categories & Topics:** create/edit active language-specific categories and parent relationships. A category with articles cannot be deactivated until content is reassigned.
 - **Homepage Manager:** place only published stories in approved slots. Optional start/end times control visibility; empty/expired slots fall back to chronological content. Visual, investigation and opinion slots validate eligible article types.
+- **Featured Videos:** the public homepage automatically shows up to four approved, published articles whose content type is `Video`. The section stays hidden when no eligible video exists; staff must never create placeholder reporting merely to fill the layout. Video playback continues to use the article's reviewed privacy-enhanced YouTube URL.
 
 ## 6. Specialist checks
 

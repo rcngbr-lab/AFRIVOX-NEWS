@@ -217,7 +217,16 @@ function estimate_readtime(string $body): int { return max(1,(int)ceil(str_word_
 function media_url(?string $cover): string {
     if (!$cover) return '';
     if (str_starts_with($cover,'https://images.unsplash.com/')) return $cover;
-    if ((str_starts_with($cover,'uploads/') || str_starts_with($cover,'assets/editorial/')) && !str_contains($cover,'..')) return path($cover);
+    if ((str_starts_with($cover,'uploads/') || str_starts_with($cover,'assets/editorial/')) && !str_contains($cover,'..')) {
+        // Keep the CMS source path unchanged while serving an optional, reviewed WebP
+        // derivative for bundled editorial artwork. Uploaded newsroom media retains
+        // its approved public path and rights-controlled processing lifecycle.
+        if (str_starts_with($cover,'assets/editorial/') && preg_match('/\.(?:png|jpe?g)$/i',$cover)) {
+            $optimized=preg_replace('/\.(?:png|jpe?g)$/i','.webp',$cover);
+            if (is_string($optimized) && is_file(dirname(__DIR__).'/'.$optimized)) return path($optimized);
+        }
+        return path($cover);
+    }
     return '';
 }
 function audit_log(string $action,string $entity,int $id=0,string $detail=''): void {

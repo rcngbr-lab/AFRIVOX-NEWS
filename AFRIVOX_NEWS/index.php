@@ -4,10 +4,10 @@ require __DIR__.'/app/bootstrap.php';
 $language=site_language();
 $copy=[
   'en'=>[
-    'demo'=>'DEMO CONTENT','demo_text'=>'Stories labelled DEMO are test records from the CMS, not current news.','featured'=>'Featured News','all'=>'View All News','subscribe'=>'Subscribe to Our Newsletter','subscribe_help'=>'Get the latest news delivered to your inbox.','email'=>'Your email address','consent'=>'I agree to receive AFRIVOX NEWS email and can unsubscribe at any time.','latest'=>'Latest News','about'=>'We bring you trusted, accurate and in-depth news from Rwanda, across Africa and around the world. Our mission is to amplify African voices, promote positive change and keep you informed on the issues that matter.','learn'=>'Learn More','empty'=>'No published stories are available yet.','advertisement'=>'ADVERTISEMENT','popular'=>'Most Read','view'=>'View All','ad_title'=>'Advertising','ad_space'=>'Your campaign here','ad_cta'=>'Advertise with AFRIVOX NEWS','ad_note'=>'Commercial placements are reviewed separately from editorial coverage.'
+    'demo'=>'DEMO CONTENT','demo_text'=>'Stories labelled DEMO are test records from the CMS, not current news.','featured'=>'Featured News','all'=>'View All News','subscribe'=>'Subscribe to Our Newsletter','subscribe_help'=>'Get the latest news delivered to your inbox.','email'=>'Your email address','consent'=>'I agree to receive AFRIVOX NEWS email and can unsubscribe at any time.','latest'=>'Latest News','videos'=>'AFRIVOX TV — Featured Videos','more_videos'=>'View More Videos','about'=>'We bring you trusted, accurate and in-depth news from Rwanda, across Africa and around the world. Our mission is to amplify African voices, promote positive change and keep you informed on the issues that matter.','learn'=>'Learn More','empty'=>'No published stories are available yet.','advertisement'=>'ADVERTISEMENT','popular'=>'Most Read','view'=>'View All','ad_title'=>'Advertising','ad_space'=>'Your campaign here','ad_cta'=>'Advertise with AFRIVOX NEWS','ad_note'=>'Commercial placements are reviewed separately from editorial coverage.'
   ],
   'rw'=>[
-    'demo'=>'IBIRIMO BY’IGERAGEZA','demo_text'=>'Inkuru ziriho ikimenyetso cya DEMO ni records zo kugerageza CMS; ntabwo ari amakuru y’ubu.','featured'=>'Inkuru Zatoranyijwe','all'=>'Reba Amakuru Yose','subscribe'=>'Iyandikishe kuri Newsletter','subscribe_help'=>'Akira amakuru aheruka kuri email yawe.','email'=>'Email yawe','consent'=>'Nemeye kwakira AFRIVOX NEWS kuri email kandi nshobora kwivana ku rutonde igihe cyose.','latest'=>'Amakuru Aheruka','about'=>'Tubagezaho amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi. Intego yacu ni ukumvikanisha amajwi y’Abanyafurika no kubagezaho ibibazo by’ingenzi.','learn'=>'Menya Byinshi','empty'=>'Nta nkuru zatangajwe ziraboneka.','advertisement'=>'UMWANYA W’AMAMAZA','popular'=>'Izasomwe Cyane','view'=>'Reba Zose','ad_title'=>'Kwamamaza','ad_space'=>'Kwamamaza kwawe hano','ad_cta'=>'Yamamaza kuri AFRIVOX NEWS','ad_note'=>'Kwamamaza kugenzurwa ukwako kandi ntikuvangwa n’inkuru z’ubwanditsi.'
+    'demo'=>'IBIRIMO BY’IGERAGEZA','demo_text'=>'Inkuru ziriho ikimenyetso cya DEMO ni records zo kugerageza CMS; ntabwo ari amakuru y’ubu.','featured'=>'Inkuru Zatoranyijwe','all'=>'Reba Amakuru Yose','subscribe'=>'Iyandikishe kuri Newsletter','subscribe_help'=>'Akira amakuru aheruka kuri email yawe.','email'=>'Email yawe','consent'=>'Nemeye kwakira AFRIVOX NEWS kuri email kandi nshobora kwivana ku rutonde igihe cyose.','latest'=>'Amakuru Aheruka','videos'=>'AFRIVOX TV — Video Zatoranyijwe','more_videos'=>'Reba Izindi Video','about'=>'Tubagezaho amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi. Intego yacu ni ukumvikanisha amajwi y’Abanyafurika no kubagezaho ibibazo by’ingenzi.','learn'=>'Menya Byinshi','empty'=>'Nta nkuru zatangajwe ziraboneka.','advertisement'=>'UMWANYA W’AMAMAZA','popular'=>'Izasomwe Cyane','view'=>'Reba Zose','ad_title'=>'Kwamamaza','ad_space'=>'Kwamamaza kwawe hano','ad_cta'=>'Yamamaza kuri AFRIVOX NEWS','ad_note'=>'Kwamamaza kugenzurwa ukwako kandi ntikuvangwa n’inkuru z’ubwanditsi.'
   ]
 ];
 $t=static fn(string $key):string=>$copy[$language][$key]??$key;
@@ -28,6 +28,7 @@ foreach($articles as $story){$storyId=(int)$story['id'];if(isset($used[$storyId]
 $featured=array_values($featured);
 $latest=array_values(array_filter($articles,static fn(array $story):bool=>!$lead||(int)$story['id']!==(int)$lead['id']));
 $latest=array_slice($latest,0,6);
+$featuredVideos=array_slice(array_values(array_filter($articles,static fn(array $story):bool=>(string)($story['type']??'')==='video')),0,4);
 
 $categorySections=[];
 foreach([
@@ -82,6 +83,8 @@ render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwa
 <?php if(array_filter($articles,static fn(array $story):bool=>!empty($story['is_demo']))):?><div class="container av-demo-alert"><strong><?=e($t('demo'))?></strong><span><?=e($t('demo_text'))?></span></div><?php endif;?>
 
 <?php if($latest):?><section class="av-soft-section"><div class="container"><div class="av-section-title"><h2><?=e($t('latest'))?></h2><a href="<?=e(localized_path('search.php',$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-latest-grid"><?php foreach($latest as $story)av_home_card($story,$language);?></div></div></section><?php endif;?>
+
+<?php if($featuredVideos):?><section class="container av-video-showcase" aria-labelledby="featured-videos-title"><div class="av-section-title"><h2 id="featured-videos-title"><span aria-hidden="true">▶</span> <?=e($t('videos'))?></h2><a href="<?=e(localized_path('media.php',$language))?>"><?=e($t('more_videos'))?> <b>→</b></a></div><div class="av-video-grid"><?php foreach($featuredVideos as $story)av_home_card($story,$language,'av-video-card');?></div></section><?php endif;?>
 
 <?php if($categorySections):?><section class="container av-category-layout">
   <div class="av-category-feed">

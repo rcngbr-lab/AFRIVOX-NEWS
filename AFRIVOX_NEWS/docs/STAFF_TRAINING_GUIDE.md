@@ -55,7 +55,8 @@ Pass: no self-approval/publish option, no confidential data in public fields, an
 5. Demonstrate that author self-approval and incomplete gates fail.
 6. Approve and schedule/publish a corrected fictional story using separate actors.
 7. Curate and expire a homepage slot; verify chronological fallback.
-8. Run a live event from draft to closed with reporter update, independent approval and correction note.
+8. Publish an approved training article with content type `Video` and a reviewed YouTube URL; verify that it appears in the homepage Featured Videos section and the media archive. Remove or unpublish the training record and verify that no fabricated placeholder replaces it.
+9. Run a live event from draft to closed with reporter update, independent approval and correction note.
 
 Pass: every transition, denial and public result matches the workflow matrix.
 
