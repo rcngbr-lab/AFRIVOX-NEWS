@@ -60,6 +60,14 @@ function av_home_card(array $story,string $language,string $class=''):void{$cove
 <article class="av-news-card <?=e($class)?>"><a class="av-card-image" href="<?=e(article_url($story))?>" aria-label="<?=e($story['title'])?>"><?php if($cover):?><img src="<?=e($cover)?>" loading="lazy" alt="<?=e(($story['image_alt']??'')?:($story['image_caption']??'')?:$story['title'])?>"><?php else:?><span>AFRIVOX NEWS</span><?php endif;?><b><?=e(strtoupper((string)$story['category_name']))?></b></a><div class="av-card-body"><h3><a href="<?=e(article_url($story))?>"><?=e($story['title'])?></a></h3><div class="av-meta"><span>◷ <?=e(relative_time($story['published_at'],$language))?></span></div><?php if(!empty($story['is_demo'])):?><span class="demo-chip">DEMO / URUGERO</span><?php endif;?></div></article>
 <?php }
 
+function av_category_story(array $story,string $language):void{$cover=media_url($story['cover_image']??'');?>
+<article class="av-category-story"><a class="av-category-story-image" href="<?=e(article_url($story))?>" aria-label="<?=e($story['title'])?>"><?php if($cover):?><img src="<?=e($cover)?>" loading="lazy" alt="<?=e(($story['image_alt']??'')?:($story['image_caption']??'')?:$story['title'])?>"><?php else:?><span>AV</span><?php endif;?></a><div><span class="av-category-story-label"><?=e(strtoupper((string)$story['category_name']))?> · <?=e(strtoupper(str_replace('_',' ',(string)$story['type'])))?></span><h3><a href="<?=e(article_url($story))?>"><?=e($story['title'])?></a></h3><p><?=e(excerpt((string)$story['summary'],125))?></p><small>◷ <?=e(relative_time($story['published_at'],$language))?></small><?php if(!empty($story['is_demo'])):?><span class="demo-chip">DEMO / URUGERO</span><?php endif;?></div></article>
+<?php }
+
+function av_ranked_story(array $story,string $language,int $rank):void{?>
+<article class="av-ranked-story"><strong><?=str_pad((string)$rank,2,'0',STR_PAD_LEFT)?></strong><div><span><?=e(strtoupper((string)$story['category_name']))?> · <?=e(relative_time($story['published_at'],$language))?></span><h3><a href="<?=e(article_url($story))?>"><?=e($story['title'])?></a></h3><p><?=e(excerpt((string)$story['summary'],145))?></p></div></article>
+<?php }
+
 render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwanda, Africa and the world.':'Amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi.',$language);
 ?>
 <main id="main-content" class="afrivox-home" tabindex="-1">
@@ -88,12 +96,12 @@ render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwa
 
 <?php if($categorySections):?><section class="container av-category-layout">
   <div class="av-category-feed">
-    <?php foreach($categorySections as $section):?><section class="av-category-section"><div class="av-section-title"><h2><?=e($section['title'])?></h2><a href="<?=e(localized_path('category.php?slug='.$section['slug'],$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-category-grid"><?php foreach($section['items'] as $story)av_home_card($story,$language);?></div></section><?php endforeach;?>
+    <?php foreach($categorySections as $section):?><section class="av-category-section"><div class="av-section-title"><h2><?=e($section['title'])?></h2><a href="<?=e(localized_path('category.php?slug='.$section['slug'],$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-category-story-grid"><?php foreach($section['items'] as $story)av_category_story($story,$language);?></div></section><?php endforeach;?>
   </div>
   <?php render_ad_rail($language,'home-advertising-title'); ?>
 </section><?php endif;?>
 
-<?php if($trending):?><section class="container av-category-section"><div class="av-section-title"><h2><?=e($t('popular'))?></h2></div><div class="av-category-grid"><?php foreach($trending as $story)av_home_card(preferred_article_language($story,$language),$language);?></div></section><?php endif;?>
+<?php if($trending):?><section class="container av-category-section av-most-read"><div class="av-section-title"><h2><?=e($t('popular'))?></h2></div><div class="av-ranked-grid"><?php foreach($trending as $rank=>$story)av_ranked_story(preferred_article_language($story,$language),$language,$rank+1);?></div></section><?php endif;?>
 
 </main>
 <?php render_footer(); ?>
