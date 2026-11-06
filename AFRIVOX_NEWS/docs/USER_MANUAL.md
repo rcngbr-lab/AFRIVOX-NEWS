@@ -132,10 +132,10 @@ Open the active event, write a concise attributed update and save it as draft. I
 2. Add a valid advertiser, create a campaign draft with pricing model, currency, whole/smallest-unit budget and date range.
 3. Submit the draft for independent approval.
 4. A publisher/approver who did not create it approves the campaign; the creator cannot self-approve.
-5. Upload a JPEG, PNG or WebP 2:3 creative (for example 600×900), title, descriptive alt text, HTTPS destination, language, disclosure, rights holder and licence/contract reference. The file remains private and is re-encoded to a safe JPEG.
+5. Upload a 60×90 JPEG/PNG/WebP photo creative (for example 600×900), a portrait MP4/WebM video creative, or a 970×90 JPEG/PNG/WebP header banner, together with title, descriptive alt text, HTTPS destination, language, disclosure, rights holder and licence/contract reference. Photos/banners are re-encoded to a safe JPEG; videos require genuine container signatures and independent playback/framing review.
 6. Submit the creative. A different authorized publisher previews and approves or rejects it with a reason. Only approval publishes the safe derivative.
-7. Create a placement in **Homepage Right 1–4** or **Sitewide Luxury Banner — all public pages** whose dates stay inside the campaign. Overlapping placements in the same slot are rejected.
-8. Activate the campaign and placement only during their approved windows. The homepage automatically shows the approved creative, visibly discloses it, uses a sponsored link and returns to the AFRIVOX placeholder when paused, cancelled or expired.
+7. Create a placement in **Right Rail 1–4** for a 60×90 creative or **Header Banner 1–4** for a 970×90 image banner. Placement dates must stay inside the campaign; overlaps in the same slot are rejected.
+8. Activate the campaign and placement only during their approved windows. The homepage, news archives and published article pages show the approved right-rail carousel and the header rotates approved banners automatically every 5.5 seconds. Both visibly disclose advertising, use sponsored links, pause for accessibility and return to AFRIVOX placeholders when no paid placement is eligible.
 9. Review served, one-second/50%-viewable and click counts in step 8. They store no IP, referrer or user-agent and are operational—not certified billing evidence.
 10. Contracts, invoice evidence and any external reconciliation remain governed by the approved business procedure; this is not a complete CRM or certified ad-verification service.
 

@@ -107,6 +107,137 @@ document.querySelectorAll('[data-av-headline-slider]').forEach((slider) => {
   start();
 });
 
+document.querySelectorAll('[data-av-header-ad]').forEach((carousel) => {
+  const slides = Array.from(carousel.querySelectorAll('[data-header-ad-slide]'));
+  const dots = Array.from(carousel.querySelectorAll('[data-header-ad-to]'));
+  const pauseButton = carousel.querySelector('[data-header-ad-pause]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let current = 0;
+  let timer = null;
+  let manuallyPaused = false;
+  if (slides.length < 1) return;
+
+  const show = (requested, announce = false) => {
+    current = (requested + slides.length) % slides.length;
+    slides.forEach((slide, index) => {
+      const active = index === current;
+      slide.classList.toggle('is-active', active);
+      slide.setAttribute('aria-hidden', String(!active));
+      if (slide.matches('a')) slide.tabIndex = active ? 0 : -1;
+      if (active) slide.dispatchEvent(new CustomEvent('av-ad-visible'));
+    });
+    dots.forEach((dot, index) => dot.setAttribute('aria-selected', String(index === current)));
+    if (announce) carousel.setAttribute('aria-label', `${document.documentElement.lang === 'en' ? 'Advertisement' : 'Kwamamaza'} ${current + 1} / ${slides.length}`);
+  };
+  const stop = () => { if (timer !== null) window.clearInterval(timer); timer = null; };
+  const start = () => {
+    stop();
+    if (manuallyPaused || reducedMotion.matches || document.hidden || slides.length < 2) return;
+    timer = window.setInterval(() => show(current + 1), 5500);
+  };
+  carousel.addEventListener('click', (event) => {
+    const previous = event.target.closest('[data-header-ad-prev]');
+    const next = event.target.closest('[data-header-ad-next]');
+    const dot = event.target.closest('[data-header-ad-to]');
+    const pause = event.target.closest('[data-header-ad-pause]');
+    if (previous || next || dot) {
+      event.preventDefault();
+      show(dot ? Number(dot.dataset.headerAdTo) : current + (previous ? -1 : 1), true);
+      start();
+    }
+    if (pause) {
+      event.preventDefault();
+      manuallyPaused = !manuallyPaused;
+      pause.setAttribute('aria-pressed', String(manuallyPaused));
+      pause.textContent = manuallyPaused ? '▶' : 'Ⅱ';
+      pause.setAttribute('aria-label', manuallyPaused ? 'Resume autoplay' : 'Pause autoplay');
+      manuallyPaused ? stop() : start();
+    }
+  });
+  carousel.addEventListener('mouseenter', stop);
+  carousel.addEventListener('mouseleave', start);
+  carousel.addEventListener('focusin', stop);
+  carousel.addEventListener('focusout', (event) => { if (!carousel.contains(event.relatedTarget)) start(); });
+  document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+  reducedMotion.addEventListener('change', start);
+  show(0);
+  start();
+});
+
+document.querySelectorAll('[data-av-ad-carousel]').forEach((carousel) => {
+  const viewport = carousel.querySelector('[data-av-ad-viewport]');
+  const track = carousel.querySelector('[data-av-ad-track]');
+  const slides = Array.from(carousel.querySelectorAll('[data-av-ad-slide]'));
+  const dots = Array.from(carousel.querySelectorAll('[data-av-ad-page]'));
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let page = 0;
+  let timer = null;
+  if (!viewport || !track || slides.length < 1) return;
+
+  const updateVideos = () => {
+    const visible = new Set([page * 2, page * 2 + 1]);
+    slides.forEach((slide, index) => {
+      const video = slide.querySelector('[data-ad-video]');
+      const button = slide.querySelector('[data-ad-video-toggle]');
+      if (!video || visible.has(index)) return;
+      video.pause();
+      if (button) {
+        button.querySelector('span').textContent = '▶';
+        button.setAttribute('aria-label', button.dataset.playLabel || 'Play advertisement video');
+      }
+    });
+  };
+
+  const show = (requested, smooth = true) => {
+    const pages = Math.max(1, Math.ceil(slides.length / 2));
+    page = (requested + pages) % pages;
+    slides.forEach((slide, index) => { slide.hidden = index < page * 2 || index >= page * 2 + 2; });
+    dots.forEach((dot, index) => dot.setAttribute('aria-selected', String(index === page)));
+    updateVideos();
+  };
+  const stop = () => { if (timer !== null) window.clearInterval(timer); timer = null; };
+  const start = () => {
+    stop();
+    if (reducedMotion.matches || document.hidden || slides.length <= 2) return;
+    timer = window.setInterval(() => show(page + 1), 8000);
+  };
+
+  carousel.addEventListener('click', (event) => {
+    const previous = event.target.closest('[data-av-ad-prev]');
+    const next = event.target.closest('[data-av-ad-next]');
+    const dot = event.target.closest('[data-av-ad-page]');
+    const videoButton = event.target.closest('[data-ad-video-toggle]');
+    if (previous || next || dot) {
+      event.preventDefault();
+      show(dot ? Number(dot.dataset.avAdPage) : page + (previous ? -1 : 1));
+      start();
+    }
+    if (videoButton) {
+      event.preventDefault();
+      const video = videoButton.closest('[data-av-ad-slide]')?.querySelector('[data-ad-video]');
+      if (!video) return;
+      if (video.paused) {
+        video.play().then(() => {
+          videoButton.querySelector('span').textContent = 'Ⅱ';
+          videoButton.setAttribute('aria-label', videoButton.dataset.pauseLabel || 'Pause advertisement video');
+        }).catch(() => {});
+      } else {
+        video.pause();
+        videoButton.querySelector('span').textContent = '▶';
+        videoButton.setAttribute('aria-label', videoButton.dataset.playLabel || 'Play advertisement video');
+      }
+    }
+  });
+  carousel.addEventListener('mouseenter', stop);
+  carousel.addEventListener('mouseleave', start);
+  carousel.addEventListener('focusin', stop);
+  carousel.addEventListener('focusout', (event) => { if (!carousel.contains(event.relatedTarget)) start(); });
+  document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+  reducedMotion.addEventListener('change', start);
+  show(0, false);
+  start();
+});
+
 (() => {
   const cards = Array.from(document.querySelectorAll('[data-ad-placement][data-ad-event-url]'));
   if (!cards.length) return;
@@ -121,15 +252,17 @@ document.querySelectorAll('[data-av-headline-slider]').forEach((slider) => {
     else fetch(card.dataset.adEventUrl, { method: 'POST', body, credentials: 'same-origin', keepalive: true }).catch(() => {});
   };
   const states = new Map();
+  const isEligible = (card) => card.getAttribute('aria-hidden') !== 'true';
   const scheduleView = (card) => {
-    const state = states.get(card); if (!state || state.ratio < 0.5 || document.hidden || state.timer) return;
-    state.timer = window.setTimeout(() => { state.timer = null; if (state.ratio >= 0.5 && !document.hidden) { report(card, 'viewable'); observer.unobserve(card); } }, 1000);
+    const state = states.get(card); if (!state || state.ratio < 0.5 || !isEligible(card) || document.hidden || state.timer) return;
+    state.timer = window.setTimeout(() => { state.timer = null; if (state.ratio >= 0.5 && isEligible(card) && !document.hidden) { report(card, 'viewable'); observer.unobserve(card); } }, 1000);
   };
   const observer = new IntersectionObserver((entries) => entries.forEach((entry) => {
     const state = states.get(entry.target); state.ratio = entry.intersectionRatio;
+    if (state.ratio > 0 && isEligible(entry.target)) report(entry.target, 'served');
     if (state.ratio < 0.5 && state.timer) { window.clearTimeout(state.timer); state.timer = null; }
     scheduleView(entry.target);
   }), { threshold: [0, 0.5, 1] });
-  cards.forEach((card) => { states.set(card, { ratio: 0, timer: null }); report(card, 'served'); card.addEventListener('click', () => report(card, 'click'), { passive: true }); observer.observe(card); });
+  cards.forEach((card) => { states.set(card, { ratio: 0, timer: null }); card.addEventListener('click', (event) => { if (event.target.closest('[data-ad-destination]')) report(card, 'click'); }, { passive: true }); card.addEventListener('av-ad-visible', () => { const state=states.get(card); if(state.ratio>0)report(card,'served'); scheduleView(card); }); observer.observe(card); });
   document.addEventListener('visibilitychange', () => cards.forEach((card) => { const state = states.get(card); if (document.hidden && state.timer) { window.clearTimeout(state.timer); state.timer = null; } else scheduleView(card); }));
 })();

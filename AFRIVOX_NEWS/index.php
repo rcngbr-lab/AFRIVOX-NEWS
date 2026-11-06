@@ -42,7 +42,6 @@ foreach([
 $trendingSelect=preg_replace('/^SELECT /','SELECT (SELECT COUNT(*) FROM analytics_events ae WHERE ae.article_id=a.id) AS view_count,',public_article_select(),1);
 $trending=query_all($trendingSelect.' WHERE '.published_where().' ORDER BY view_count DESC,a.published_at DESC LIMIT 4');
 if(!array_filter($trending,static fn(array $story):bool=>(int)($story['view_count']??0)>0))$trending=[];
-$homeAds=active_homepage_ads($language);
 
 $quickNav=[
   ['Rwanda','amakuru','#1262a8','<path d="M5 11 12 5l7 6v8h-5v-5h-4v5H5z"/>'],
@@ -88,18 +87,10 @@ render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwa
   <div class="av-category-feed">
     <?php foreach($categorySections as $section):?><section class="av-category-section"><div class="av-section-title"><h2><?=e($section['title'])?></h2><a href="<?=e(localized_path('category.php?slug='.$section['slug'],$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-category-grid"><?php foreach($section['items'] as $story)av_home_card($story,$language);?></div></section><?php endforeach;?>
   </div>
-  <aside class="av-ad-rail" aria-labelledby="home-advertising-title">
-    <div class="av-ad-rail-heading"><div><span><?=e($t('advertisement'))?></span><h2 id="home-advertising-title"><?=e($t('ad_title'))?></h2></div><small>60 × 90</small></div>
-    <div class="av-ad-card-grid">
-      <?php foreach(['navy','blue','red','gold'] as $adIndex=>$adTheme):$slotKey='homepage_right_'.($adIndex+1);$liveAd=$homeAds[$slotKey]??null;?><?php if($liveAd):?><a class="av-ad-card av-ad-card-live" href="<?=e($liveAd['destination_url'])?>" target="_blank" rel="sponsored noopener noreferrer" data-ad-placement="<?=(int)$liveAd['placement_id']?>" data-ad-event-url="<?=e(path('ad-event.php'))?>"><img src="<?=e(path($liveAd['public_path']))?>" alt="<?=e($liveAd['alt_text'])?>"><span class="av-ad-label"><?=e($liveAd['disclosure'])?></span><span class="av-ad-live-copy"><strong><?=e($liveAd['title'])?></strong><?php if($liveAd['button_text']):?><small><?=e($liveAd['button_text'])?> →</small><?php endif;?></span></a><?php else:?><article class="av-ad-card av-ad-card-<?=e($adTheme)?>"><span class="av-ad-label"><?=e($t('advertisement'))?></span><span class="av-ad-monogram" aria-hidden="true">AD</span><strong><?=e($t('ad_space'))?></strong><small>60 × 90</small></article><?php endif;?><?php endforeach;?>
-    </div>
-    <p class="av-ad-disclosure"><?=e($t('ad_note'))?></p>
-    <a class="av-ad-cta" href="<?=e(localized_path('contact.php',$language))?>"><?=e($t('ad_cta'))?> <b>→</b></a>
-  </aside>
+  <?php render_ad_rail($language,'home-advertising-title'); ?>
 </section><?php endif;?>
 
 <?php if($trending):?><section class="container av-category-section"><div class="av-section-title"><h2><?=e($t('popular'))?></h2></div><div class="av-category-grid"><?php foreach($trending as $story)av_home_card(preferred_article_language($story,$language),$language);?></div></section><?php endif;?>
 
-<aside class="container av-ad-placement" aria-label="Advertisement"><span><?=e($t('advertisement'))?></span><p>970 × 90</p></aside>
 </main>
 <?php render_footer(); ?>
