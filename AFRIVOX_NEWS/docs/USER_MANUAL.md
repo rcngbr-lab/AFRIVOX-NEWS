@@ -117,6 +117,15 @@ Open the active event, write a concise attributed update and save it as draft. I
 4. Production approval must fail closed if the required malware scanner or image processor is unavailable.
 5. Never work around quarantine by placing files directly in the public upload directory.
 
+### Editorial Video Library
+
+1. Open **Video Library** and register only an authorized HTTPS YouTube URL. This workflow records and reviews an external provider reference; it does not upload or transcode the video binary.
+2. Complete the accessible description, language, duration, verified captions or transcript, rights holder, licence/contract reference, expiry and restrictions.
+3. Save a draft, then submit it. A different multimedia approver must approve or reject it; the creator cannot approve the same video.
+4. After approval, open the article editor and use **Managed story video** to attach it. Complete the article’s normal media-rights check and editorial approval flow.
+5. Rights expiry or archive/takedown automatically disables managed public playback. Never bypass this by copying the same URL into the legacy field.
+6. See `VIDEO_LIBRARY_WORKFLOW.md` for the full procedure and production boundary.
+
 ## 9. Audience, newsletter and reader contact
 
 - Contact messages are typed as general, correction, complaint, news tip, rights or privacy. Route them only to authorized staff and follow approved retention/response deadlines.

@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__.'/EditorialWorkflow.php';
 require_once __DIR__.'/Security.php';
 require_once __DIR__.'/MediaService.php';
+require_once __DIR__.'/VideoService.php';
 require_once __DIR__.'/AdService.php';
 require_once __DIR__.'/PasswordResetService.php';
 $configPath = dirname(__DIR__) . '/config.local.php';
@@ -132,7 +133,7 @@ function article_status_labels(): array {
 function workflow_context(int $articleId): array {
     $checks=query_all('SELECT check_type,outcome FROM editorial_checks WHERE article_id=?',[$articleId]);$out=[];
     foreach($checks as $check){$out[$check['check_type'].'_outcome']=$check['outcome'];$out[$check['check_type'].'_passed']=$check['outcome']==='passed';}
-    $media=query_all('SELECT m.approval_status,m.rights_expires_at,m.public_path FROM article_media am JOIN media_assets m ON m.id=am.media_id WHERE am.article_id=?',[$articleId]);$out['media_count']=count($media);$out['media_all_approved']=true;
+    $media=query_all('SELECT m.approval_status,m.rights_expires_at,m.public_path FROM article_media am JOIN media_assets m ON m.id=am.media_id WHERE am.article_id=?',[$articleId]);$videos=query_all('SELECT v.status AS approval_status,v.rights_expires_at,v.source_url AS public_path FROM article_videos av JOIN video_assets v ON v.id=av.video_asset_id WHERE av.article_id=?',[$articleId]);$media=array_merge($media,$videos);$out['media_count']=count($media);$out['media_all_approved']=true;
     foreach($media as $asset)if($asset['approval_status']!=='approved'||empty($asset['public_path'])||(!empty($asset['rights_expires_at'])&&strtotime($asset['rights_expires_at'])<=time()))$out['media_all_approved']=false;
     $article=query_one('SELECT cover_image,internal_source_notes,verification_evidence,source_confidentiality_level FROM articles WHERE id=?',[$articleId]);$out['untracked_upload_media']=!empty($article['cover_image'])&&str_starts_with((string)$article['cover_image'],'uploads/')&&$out['media_count']===0;
     $out['source_classification_complete']=in_array((string)($article['source_confidentiality_level']??''),['public','internal','confidential','restricted'],true);$out['confidential_data_protected']=true;

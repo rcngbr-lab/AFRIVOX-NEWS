@@ -3,6 +3,7 @@ declare(strict_types=1);
 require dirname(__DIR__).'/app/EditorialWorkflow.php';
 require dirname(__DIR__).'/app/Security.php';
 require dirname(__DIR__).'/app/MediaService.php';
+require dirname(__DIR__).'/app/VideoService.php';
 require dirname(__DIR__).'/app/PasswordResetService.php';
 require dirname(__DIR__).'/app/NewsletterService.php';
 require dirname(__DIR__).'/app/PublicFormService.php';
@@ -115,5 +116,26 @@ $selfCampaign=$adDb->prepare("UPDATE ad_campaigns SET status='approved',approved
 $publisherCampaign=$adDb->prepare("UPDATE ad_campaigns SET status='approved',approved_by=? WHERE id=? AND status='pending_approval' AND created_by<>?");$publisherCampaign->execute([2,10,2]);check($publisherCampaign->rowCount()===1,'separate publisher can approve advertising campaign');
 $creativeApprove=$adDb->prepare("UPDATE ad_creatives SET status='approved',approved_by=? WHERE id=? AND status='pending_review' AND created_by<>?");$creativeApprove->execute([2,20,2]);check($creativeApprove->rowCount()===1,'separate publisher can approve licensed creative');
 $adDb->exec("INSERT INTO ad_events(placement_id,event_type,event_token) VALUES(30,'viewable','same-page-token')");try{$adDb->exec("INSERT INTO ad_events(placement_id,event_type,event_token) VALUES(30,'viewable','same-page-token')");check(false,'duplicate advertisement event accepted');}catch(PDOException){check(true,'advertisement event token prevents duplicate measurement');}
+
+$serviceDb=new PDO('sqlite::memory:');$serviceDb->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);$serviceDb->exec('PRAGMA foreign_keys=ON');
+$serviceDb->exec(<<<'SQL'
+CREATE TABLE users(id INTEGER PRIMARY KEY,role TEXT NOT NULL);
+CREATE TABLE articles(id INTEGER PRIMARY KEY,video_url TEXT,lock_version INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE video_assets(id INTEGER PRIMARY KEY AUTOINCREMENT,provider TEXT NOT NULL DEFAULT 'youtube',provider_video_id TEXT NOT NULL,source_url TEXT NOT NULL,title TEXT NOT NULL,description TEXT,language TEXT NOT NULL DEFAULT 'rw',duration_seconds INTEGER,transcript_text TEXT,captions_available INTEGER NOT NULL DEFAULT 0,alt_text TEXT NOT NULL,rights_holder TEXT NOT NULL,license_reference TEXT NOT NULL,rights_expires_at TEXT,usage_restrictions TEXT,status TEXT NOT NULL DEFAULT 'draft',review_note TEXT,approved_by INTEGER,approved_at TEXT,created_by INTEGER NOT NULL,lock_version INTEGER NOT NULL DEFAULT 1,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,UNIQUE(provider,provider_video_id),FOREIGN KEY(approved_by) REFERENCES users(id),FOREIGN KEY(created_by) REFERENCES users(id));
+CREATE TABLE article_videos(article_id INTEGER PRIMARY KEY,video_asset_id INTEGER NOT NULL,attached_by INTEGER NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(article_id) REFERENCES articles(id),FOREIGN KEY(video_asset_id) REFERENCES video_assets(id),FOREIGN KEY(attached_by) REFERENCES users(id));
+INSERT INTO users VALUES(1,'video_producer'),(2,'multimedia_editor');
+INSERT INTO articles(id,video_url) VALUES(10,NULL);
+SQL);
+try{VideoService::create(['source_url'=>'https://example.com/video','title'=>'Invalid provider','alt_text'=>'Accessible video description','rights_holder'=>'AFRIVOX NEWS','license_reference'=>'Owned','captions_available'=>1],1);check(false,'unapproved video provider accepted');}catch(RuntimeException){check(true,'unapproved video provider rejected');}
+try{VideoService::create(['source_url'=>'https://youtu.be/aqz-KE-bpKQ','title'=>'Missing accessibility evidence','alt_text'=>'Accessible video description','rights_holder'=>'AFRIVOX NEWS','license_reference'=>'Owned'],1);check(false,'video without captions or transcript accepted');}catch(RuntimeException){check(true,'video requires captions or transcript evidence');}
+$videoId=VideoService::create(['source_url'=>'https://youtu.be/dQw4w9WgXcQ','title'=>'Controlled editorial video','description'=>'Verified supporting footage','language'=>'en','duration_seconds'=>120,'alt_text'=>'Reporter explains the verified story on camera.','rights_holder'=>'AFRIVOX NEWS','license_reference'=>'Internal production agreement 2026-11','captions_available'=>1],1);
+VideoService::submit($videoId,1);
+try{VideoService::attachApproved(10,$videoId,2);check(false,'submitted but unapproved video attached');}catch(RuntimeException){check(true,'only approved video can attach to article');}
+try{VideoService::approve($videoId,1);check(false,'video creator approved own video');}catch(RuntimeException){check(true,'video creator cannot approve own video');}
+VideoService::approve($videoId,2);$approvedVideo=query_one('SELECT * FROM video_assets WHERE id=?',[$videoId]);check($approvedVideo['status']==='approved'&&(int)$approvedVideo['approved_by']===2,'independent multimedia editor approves video');
+VideoService::attachApproved(10,$videoId,2);$attachment=VideoService::publicForArticle(10);check($attachment!==null&&$attachment['embed_url']==='https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ','approved video attaches with privacy-enhanced playback');
+$serviceDb->exec("UPDATE video_assets SET rights_expires_at=datetime('now','-1 minute') WHERE id=".$videoId);check(VideoService::publicForArticle(10)===null,'expired video rights block public playback');
+VideoService::detach(10);check((int)$serviceDb->query('SELECT COUNT(*) FROM article_videos WHERE article_id=10')->fetchColumn()===0&&$serviceDb->query('SELECT video_url FROM articles WHERE id=10')->fetchColumn()===null,'detaching managed video clears its compatibility URL');
+VideoService::archive($videoId,2,'Rights window ended; retain the audit record.');check($serviceDb->query('SELECT status FROM video_assets WHERE id='.$videoId)->fetchColumn()==='archived','authorized takedown archives video without deleting history');
 
 echo "\nResult: $passed passed, $failed failed\n";exit($failed?1:0);

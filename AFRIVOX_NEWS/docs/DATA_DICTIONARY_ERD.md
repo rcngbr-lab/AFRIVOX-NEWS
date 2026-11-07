@@ -1,6 +1,6 @@
 # AFRIVOX NEWS data dictionary and editorial ERD
 
-Status: implemented schema reference for V4/V5. This document describes structure; it does not certify a production database migration or legal compliance.
+Status: implemented schema reference through V7. This document describes structure; it does not certify a production database migration or legal compliance.
 
 ## Editorial relationship model
 
@@ -22,6 +22,8 @@ erDiagram
     ARTICLES o|--o{ HOMEPAGE_SLOTS : appears_in
     ARTICLES ||--o{ ARTICLE_MEDIA : uses
     MEDIA_ASSETS ||--o{ ARTICLE_MEDIA : attached_to
+    ARTICLES ||--o| ARTICLE_VIDEOS : has_primary_video
+    VIDEO_ASSETS ||--o{ ARTICLE_VIDEOS : attached_to
     USERS ||--o{ ADVERTISERS : creates
     ADVERTISERS ||--o{ AD_CAMPAIGNS : funds
     ADVERTISERS ||--o{ INVOICES : billed
@@ -43,6 +45,7 @@ erDiagram
 | `workflow_transitions` | Append-only editorial state history | article, actor | Internal audit evidence; explanations may contain sensitive context. |
 | `editorial_checks` | Specialist checks and outcomes | article, checker | Legal/source/fairness notes are restricted to authorized roles. |
 | `media_assets`, `article_media` | Quarantined media, rights data and article placement | uploader, approver, article | Original upload paths are private; only approved derivatives are public. Rights and licensing evidence must be retained. |
+| `video_assets`, `article_videos` | Reviewed external video metadata, accessibility/rights evidence and one managed primary article attachment | creator, independent approver, attacher, article | Transcript/licence/review data is editorial evidence. Only approved, unexpired records are public; archive preserves history. No provider binary is stored. |
 | `homepage_slots` | Time-bounded placement of published stories | article, updater | Editorial scheduling data is internal until activation. |
 | `audit_logs` | Tamper-evident security and privileged-action events | actor and target entity | Restricted operational evidence; redact secrets and confidential-source content from `detail`. |
 | `notifications` | Internal workflow notifications | user and optional entity | Internal; avoid embedding confidential source material. |
@@ -76,13 +79,16 @@ The application applies optimistic locking through `lock_version`, so a stale de
 - Optional article-to-pitch links can be set to `NULL`, but assignment targets use restrictive foreign keys. Editorial records should be archived rather than deleted so the assignment history remains attributable.
 - Currency values are integer `*_minor` units with an ISO 4217 code. A finance owner must confirm the display/rounding policy for RWF before live billing.
 - Dates are stored as server-side `DATETIME`; production deployment must standardize UTC storage and localized display.
+- Managed video attachment is one-to-one per article; the video asset may be reused. Attachment requires an approved, unexpired asset, and archival/expiry disables public playback without deleting history.
 
 ## Migration order
 
-1. `schema.sql` for a clean database, or existing migrations through `20261029_v3_security_gates.sql`.
+1. `schema.sql` for a clean database; otherwise apply the existing migrations in their documented order through `20261029_v3_security_gates.sql`.
 2. `20261029_v4_newsroom_operations.sql`.
 3. `20261029_v5_taxonomy.sql`.
 4. `20261029_v5_audience.sql`.
-5. Run backup, migration preflight, row-count/integrity checks and rollback rehearsal on staging before production.
+5. `20261105_v6_ad_delivery.sql`.
+6. `20261106_v7_video_library.sql`.
+7. Run backup, migration preflight, row-count/integrity checks and rollback rehearsal on staging before production.
 
 SQLite in `tools/setup_local_sqlite.php` is a developer preview approximation. MySQL/MariaDB staging remains the release authority for foreign keys, enum behavior, query plans and concurrency.

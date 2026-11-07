@@ -91,6 +91,7 @@ Generate independent high-entropy secrets in the approved secret manager. Never 
    5. `20261029_v5_taxonomy.sql`
    6. `20261029_v5_audience.sql`
    7. `20261105_v6_ad_delivery.sql`
+   8. `20261106_v7_video_library.sql`
 5. Record start/end time, operator, release checksum, exact SQL artifact, row counts, warnings and constraints.
 6. Run preflight again and execute the validation in section 9 before admitting traffic.
 
@@ -141,7 +142,7 @@ Then record an HTTPS/browser/role acceptance matrix covering at least:
 - unauthorized-role redirects/denials and direct requests to protected directories;
 - backup restore, source decryption by an authorized test account, audit verification and rollback rehearsal.
 
-The current local baseline is 74 automated tests passing, all PHP files linting, and a successful multi-role advertising delivery acceptance on SQLite/PHP 8.5. This is evidence for the source candidate, not evidence that a production host, MySQL, scanner, mail provider, monitoring or restore process works.
+The current local baseline is 83 automated tests passing, 57 PHP files linting, authenticated admin/public route smoke checks, and SQLite/PHP 8.5 acceptance for editorial, advertising and video separation-of-duty rules. This is evidence for the source candidate, not evidence that a production host, MySQL, scanner, mail provider, monitoring or restore process works.
 
 ## 10. Identity, access and operational administration
 
@@ -157,6 +158,8 @@ The current local baseline is 74 automated tests passing, all PHP files linting,
 ### Media
 
 Verify the private path, permissions, storage encryption, scanner availability, allowed MIME/signature checks, image processing, metadata policy, quotas and retention. A scanner timeout/unavailable result is not “clean.” Exercise a safe scanner test fixture and confirm it cannot become publicly executable.
+
+The editorial Video Library stores an approved YouTube provider reference, not a video binary. Verify `video_assets`/`article_videos`, provider allow-list validation, independent approval, captions/transcript evidence, rights expiry, archive/takedown and the `youtube-nocookie.com` CSP path. Self-hosted video remains blocked until storage, scanning, transcoding, caption, thumbnail, CDN and backup controls are approved.
 
 ### Mail
 

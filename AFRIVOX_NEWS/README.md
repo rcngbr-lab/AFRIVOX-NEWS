@@ -25,6 +25,7 @@
 - Additive v1 migration, scheduled-publication CLI job and executable workflow/data-integrity tests.
 - Staff suspension, multiple-role assignments, forced session revocation, role-aware access and audit history.
 - Private media quarantine, mandatory rights metadata, independent approval, MIME/dimension checks and GD re-encoding; nothing becomes public before approval and production scanning can fail closed.
+- Editorial Video Library for reviewed YouTube references, captions/transcripts, licensing, independent approval/rejection, audited takedown and article attachment; legacy article URLs remain compatible.
 - Key-ID based confidential-data encryption rotation, confidential-source access logging, optimistic article locks and HMAC-chained audit events with a verifier CLI.
 - Database-backed Newsroom, Audience, Advertising, Finance, first-party Analytics and System Administration modules. Advertising includes licensed 60×90 creative quarantine, independent campaign/creative approval, four scheduled homepage placements, automatic expiry and privacy-preserving served/viewable/click counts; invoice/payment identity separation is enforced.
 - HTTPS-aware cookies, prepared SQL statements, CSRF protection, HTML escaping and login throttling.
@@ -33,7 +34,7 @@
 
 ## What is NOT finished — important
 
-**This is a staging candidate, not an independently verified production-ready news enterprise.** The local environment lacks `pdo_mysql`, a malware scanner and a live MySQL server. Local SQLite setup, secure GD advertising upload, multi-role advertising delivery acceptance and **74 automated policy/data-integrity tests pass**; public and authenticated route smoke tests pass. Real MySQL/MariaDB migration, production scanner integration, complete publishing E2E, accessibility/device testing and production operations still require isolated staging.
+**This is a staging candidate, not an independently verified production-ready news enterprise.** The local environment lacks `pdo_mysql`, a malware scanner and a live MySQL server. Local SQLite setup and **83 automated policy/data-integrity tests pass**. Real MySQL/MariaDB migration, production scanner integration, complete authenticated publishing/video E2E, accessibility/device testing and production operations still require isolated staging.
 
 Not implemented or not independently verified: payment-provider processing and external statement reconciliation; real double-opt-in email delivery; full legal/privacy approval; production malware scanning; video transcoding/storage; comments/moderation; certified/billable third-party ad measurement and full CRM/quotes/contracts; completed multilingual translation assignment UI; anonymous secure-drop portal; push notifications; CDN/high-availability scaling; automated backup infrastructure; penetration testing; production monitoring and disaster recovery.
 
@@ -91,6 +92,7 @@ Not implemented or not independently verified: payment-provider processing and e
 ├── admin/login.php       Staff login
 ├── admin/index.php       Workflow, encrypted source editor, staff, audit
 ├── admin/media-library.php  Rights-aware media intake and approval
+├── admin/video-library.php  Reviewed video metadata, rights and approval
 ├── admin/newsroom-operations.php  Pitches, assignments and calendar
 ├── admin/live-operations.php  Live event and independent update approval
 ├── admin/categories.php  Taxonomy administration
@@ -126,11 +128,11 @@ The backend enforces a separate approver for approval and retains transitions/re
 
 ## Database
 
-The normalized MySQL schema covers users/multiple roles, encrypted-source fields, revisions, workflow/checks, pitches/assignments, taxonomy, media rights, live reporting, audience consent, advertising, integer-minor-unit invoices/payments, first-party analytics, notifications, audit logs and settings. Existing installations take a verified backup, run `php cli/migration_preflight.php`, then apply the additive migrations in this order: `20261028_phase2.sql`, `20261028_p0_security_mms.sql`, `20261029_v3_security_gates.sql`, `20261029_v4_newsroom_operations.sql`, `20261029_v5_taxonomy.sql`, `20261029_v5_audience.sql`, and `20261105_v6_ad_delivery.sql`. Rehearse the exact sequence and rollback on representative MySQL/MariaDB staging before production. Run `php cli/encrypt_legacy_sources.php --apply` only under the approved maintenance procedure.
+The normalized MySQL schema covers users/multiple roles, encrypted-source fields, revisions, workflow/checks, pitches/assignments, taxonomy, image/video media rights, live reporting, audience consent, advertising, integer-minor-unit invoices/payments, first-party analytics, notifications, audit logs and settings. Existing installations take a verified backup, run `php cli/migration_preflight.php`, then apply the additive migrations in this order: `20261028_phase2.sql`, `20261028_p0_security_mms.sql`, `20261029_v3_security_gates.sql`, `20261029_v4_newsroom_operations.sql`, `20261029_v5_taxonomy.sql`, `20261029_v5_audience.sql`, `20261105_v6_ad_delivery.sql`, and `20261106_v7_video_library.sql`. Rehearse the exact sequence and rollback on representative MySQL/MariaDB staging before production. Run `php cli/encrypt_legacy_sources.php --apply` only under the approved maintenance procedure.
 
 ## Verification
 
-Run `php tools/setup_local_sqlite.php`, `php cli/migration_preflight.php`, `php tests/run.php` and `php cli/verify_audit_chain.php`, then syntax-check all PHP files and execute the HTTP/role matrix. The current local automated result is **74 passed, 0 failed**. SQLite is only a local preview; production remains MySQL/MariaDB. Start with `docs/ULTIMATE_IMPLEMENTATION_AUDIT.md`, `docs/ULTIMATE_TRACEABILITY.md`, `docs/IMPLEMENTATION_REPORT_ULTIMATE.md` and `docs/RELEASE_CHECKLIST_ULTIMATE.md` for exact status and launch blockers.
+Run `php tools/setup_local_sqlite.php`, `php cli/migration_preflight.php`, `php tests/run.php` and `php cli/verify_audit_chain.php`, then syntax-check all PHP files and execute the HTTP/role matrix. The current local automated result is **83 passed, 0 failed**. SQLite is only a local preview; production remains MySQL/MariaDB. Start with `docs/ULTIMATE_IMPLEMENTATION_AUDIT.md`, `docs/ULTIMATE_TRACEABILITY.md`, `docs/IMPLEMENTATION_REPORT_ULTIMATE.md` and `docs/RELEASE_CHECKLIST_ULTIMATE.md` for exact status and launch blockers.
 
 ## Branding
 
@@ -145,6 +147,7 @@ Advertiser/campaign records, independent campaign and creative approval, private
 ## More documentation
 
 - `docs/AFRIVOX_HOMEPAGE_IMPLEMENTATION.md` — homepage architecture, CMS selection rules, visual evidence and configuration dependencies.
+- `docs/VIDEO_LIBRARY_WORKFLOW.md` — video roles, rights/accessibility workflow, publication rules, migration and takedown procedure.
 - `docs/USER_MANUAL.md` — role-based instructions and permission boundaries.
 - `docs/STAFF_TRAINING_GUIDE.md` — staged training, exercises and assessment evidence.
 - `docs/DAILY_NEWSROOM_PROCEDURES.md` — opening, handover, breaking-news, correction and closing SOPs.
