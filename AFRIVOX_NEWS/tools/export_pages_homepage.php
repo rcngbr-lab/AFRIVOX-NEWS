@@ -26,9 +26,27 @@ function export_route(string $url):?array{
         case '/contact.php': return ['file'=>'contact.html','request'=>'/contact.php?lang=en'];
         case '/media.php': return ['file'=>'media.html','request'=>'/media.php?lang=en'];
         case '/newsletter.php': return ['file'=>'newsletter.html','request'=>'/newsletter.php?lang=en'];
+        case '/health-news.php': return ['file'=>'health-news.html','request'=>'/health-news.php?lang=en'];
+        case '/health-topics.php': return ['file'=>'health-topics.html','request'=>'/health-topics.php?lang=en'];
+        case '/health-tips.php': return ['file'=>'health-tips.html','request'=>'/health-tips.php?lang=en'];
+        case '/health-tools.php': return ['file'=>'health-tools.html','request'=>'/health-tools.php?lang=en'];
+        case '/bmi-calculator.php': return ['file'=>'bmi-calculator.html','request'=>'/bmi-calculator.php?lang=en'];
+        case '/pregnancy-calculator.php': return ['file'=>'pregnancy-calculator.html','request'=>'/pregnancy-calculator.php?lang=en'];
+        case '/child-growth-tracker.php': return ['file'=>'child-growth-tracker.html','request'=>'/child-growth-tracker.php?lang=en'];
+        case '/wellness.php': return ['file'=>'wellness.html','request'=>'/wellness.php?lang=en'];
+        case '/health-talks.php': return ['file'=>'health-talks.html','request'=>'/health-talks.php?lang=en'];
+        case '/partners.php': return ['file'=>'partners.html','request'=>'/partners.php?lang=en'];
+        case '/health-topic.php':
+            if(empty($query['slug']))return null;
+            $slug=$safe((string)$query['slug']);
+            return ['file'=>'health-topics/'.$slug.'.html','request'=>'/health-topic.php?slug='.rawurlencode((string)$query['slug']).'&lang=en'];
+        case '/health-tip.php':
+            if(empty($query['slug']))return null;
+            $slug=$safe((string)$query['slug']);
+            return ['file'=>'health-tips/'.$slug.'.html','request'=>'/health-tip.php?slug='.rawurlencode((string)$query['slug']).'&lang=en'];
         case '/privacy.php': return ['file'=>'privacy.html','request'=>'/privacy.php?lang=en'];
         case '/live.php': return ['file'=>'live.html','request'=>'/live.php?lang=en'];
-        case '/search.php': return ['file'=>'search.html','request'=>'/search.php?q=Africa&lang=en'];
+        case '/search.php': return ['file'=>'search.html','request'=>'/search.php?q=health&lang=en'];
         case '/article.php':
             if(empty($query['slug']))return null;
             $slug=$safe((string)$query['slug']);
@@ -58,7 +76,7 @@ function fetch_export_source(string $url):string{
     $context=stream_context_create(['http'=>[
         'timeout'=>20,
         'ignore_errors'=>true,
-        'header'=>"User-Agent: AFRIVOX-GitHub-Pages-Exporter/1.0\r\n",
+        'header'=>"User-Agent: UBUZIMACARE-GitHub-Pages-Exporter/1.0\r\n",
     ]]);
     $content=@file_get_contents($url,false,$context);
     $statusLine=$http_response_header[0]??'';
@@ -86,8 +104,8 @@ while($queue){
     }
 }
 
-$previewStyle='<meta name="robots" content="noindex,nofollow,noarchive"><style>.av-preview-form-note{border:1px solid #d5dde5;background:#f5f8fb;color:#17324d;padding:14px 16px;font:600 12px/1.55 Arial,sans-serif}.av-preview-form-note a{color:#b4232a;text-decoration:underline}</style>';
-$previewBadge='<div style="position:fixed;z-index:999;right:14px;bottom:14px;background:#062747;color:#fff;padding:8px 11px;border-radius:4px;font:700 9px/1.2 Arial,sans-serif;letter-spacing:.08em;box-shadow:0 4px 16px #001a2f38">CLIENT DESIGN PREVIEW · READ ONLY</div>';
+$previewStyle='<meta name="robots" content="noindex,nofollow,noarchive"><style>.av-preview-form-note{border:1px solid #b9d9c7;background:#f2fbf6;color:#073b75;padding:14px 16px;font:600 12px/1.55 Arial,sans-serif}.av-preview-form-note a{color:#08743b;text-decoration:underline}</style>';
+$previewBadge='<div style="position:fixed;z-index:999;right:14px;bottom:14px;background:#073b75;color:#fff;padding:8px 11px;border-radius:4px;font:700 9px/1.2 Arial,sans-serif;letter-spacing:.08em;box-shadow:0 4px 16px #001a2f38">UBUZIMACARE PUBLIC PREVIEW · READ ONLY</div>';
 
 foreach($rawPages as $file=>$body){
     $target=$outputRoot.'/'.$file;
@@ -111,8 +129,9 @@ foreach($rawPages as $file=>$body){
         if(file_put_contents($target,$body)===false)throw new RuntimeException('Unable to write '.$target.'.');
         continue;
     }
-    $html=(string)preg_replace_callback('~<form\b[^>]*>.*?</form>~is',static function():string{
-        return '<div class="av-preview-form-note" role="note"><strong>Read-only client preview.</strong> This form becomes operational on the secure production site. <a href="/AFRIVOX-NEWS/preview-info.html#production">Deployment details →</a></div>';
+    $html=(string)preg_replace_callback('~<form\b[^>]*>.*?</form>~is',static function(array $match):string{
+        if(str_contains($match[0],'class="uz-tool-form'))return $match[0];
+        return '<div class="av-preview-form-note" role="note"><strong>UBUZIMACARE public preview.</strong> Forms, private health workflows and staff authentication become operational only on the secure PHP production site. <a href="/AFRIVOX-NEWS/preview-info.html#production">Deployment details →</a></div>';
     },$body);
     $html=(string)preg_replace_callback('~\b(href|src)=("|\')([^"\']+)(\2)~i',static function(array $match):string{
         $attribute=$match[1];$quote=$match[2];$value=html_entity_decode($match[3],ENT_QUOTES|ENT_HTML5,'UTF-8');
