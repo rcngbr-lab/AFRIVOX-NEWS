@@ -1,4 +1,6 @@
-# AFRIVOX NEWS — Digital Newsroom & Media Platform (staging candidate)
+# UBUZIMACARE — Health Information, Education & Digital Tools (transformation branch)
+
+This branch incrementally transforms the existing AFRIVOX NEWS PHP/PDO newsroom into UBUZIMACARE while preserving its security, CMS, editorial workflow, media governance, advertising controls and audit history. See `docs/UBUZIMACARE_PHASE1_IMPLEMENTATION.md` for verified scope and production gates.
 
 **Version:** Ultimate phased implementation candidate, 30 October 2026  
 **Language:** Kinyarwanda and English public interface; article translations appear when published in the CMS.  

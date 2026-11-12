@@ -266,3 +266,60 @@ document.querySelectorAll('[data-av-ad-carousel]').forEach((carousel) => {
   cards.forEach((card) => { states.set(card, { ratio: 0, timer: null }); card.addEventListener('click', (event) => { if (event.target.closest('[data-ad-destination]')) report(card, 'click'); }, { passive: true }); card.addEventListener('av-ad-visible', () => { const state=states.get(card); if(state.ratio>0)report(card,'served'); scheduleView(card); }); observer.observe(card); });
   document.addEventListener('visibilitychange', () => cards.forEach((card) => { const state = states.get(card); if (document.hidden && state.timer) { window.clearTimeout(state.timer); state.timer = null; } else scheduleView(card); }));
 })();
+
+// UBUZIMACARE tools calculate locally. No health input is submitted or persisted.
+document.querySelectorAll('[data-bmi-tool]').forEach((tool) => {
+  tool.querySelector('form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const height = Number(data.get('height')) / 100;
+    const weight = Number(data.get('weight'));
+    if (!(height >= 0.8 && height <= 2.5 && weight >= 20 && weight <= 400)) return;
+    const bmi = weight / (height * height);
+    const lang = tool.dataset.lang;
+    const band = bmi < 18.5 ? ['Below the usual adult range','Munsi y’igipimo gisanzwe cy’abakuru','Sous la plage habituelle adulte'] : bmi < 25 ? ['Within the usual adult range','Mu gipimo gisanzwe cy’abakuru','Dans la plage habituelle adulte'] : bmi < 30 ? ['Above the usual adult range','Hejuru y’igipimo gisanzwe cy’abakuru','Au-dessus de la plage habituelle adulte'] : ['Well above the usual adult range','Hejuru cyane y’igipimo gisanzwe cy’abakuru','Nettement au-dessus de la plage habituelle adulte'];
+    const index = lang === 'rw' ? 1 : (lang === 'fr' ? 2 : 0);
+    tool.querySelector('[data-bmi-value]').textContent = bmi.toFixed(1);
+    tool.querySelector('[data-bmi-message]').textContent = `${band[index]}. BMI is a screening measure, not a diagnosis.`;
+    tool.querySelector('.uz-tool-result').hidden = false;
+  });
+});
+
+document.querySelectorAll('[data-pregnancy-tool]').forEach((tool) => {
+  tool.querySelector('form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const raw = new FormData(event.currentTarget).get('lmp');
+    const lmp = new Date(`${raw}T12:00:00`);
+    if (Number.isNaN(lmp.getTime())) return;
+    const now = new Date();
+    const due = new Date(lmp); due.setDate(due.getDate() + 280);
+    const elapsed = Math.floor((now - lmp) / 86400000);
+    const locale = tool.dataset.lang === 'rw' ? 'rw-RW' : tool.dataset.lang === 'fr' ? 'fr-FR' : 'en-GB';
+    tool.querySelector('[data-due-date]').textContent = due.toLocaleDateString(locale, { dateStyle: 'long' });
+    tool.querySelector('[data-gestational-age]').textContent = elapsed >= 0 && elapsed <= 294 ? `${Math.floor(elapsed / 7)} weeks, ${elapsed % 7} days` : 'Outside the usual calculation window';
+    tool.querySelector('.uz-tool-result').hidden = false;
+  });
+});
+
+document.querySelectorAll('[data-growth-tool]').forEach((tool) => {
+  let standards = null;
+  fetch(tool.dataset.source, { credentials: 'same-origin' }).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { standards = data; }).catch(() => {});
+  tool.querySelector('form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!standards) return;
+    const data = new FormData(event.currentTarget);
+    const dob = new Date(`${data.get('dob')}T12:00:00`), measured = new Date(`${data.get('measured')}T12:00:00`), weight = Number(data.get('weight'));
+    if (Number.isNaN(dob.getTime()) || Number.isNaN(measured.getTime()) || measured < dob || !(weight >= 1 && weight <= 50)) return;
+    const months = Math.round((measured - dob) / 2629800000);
+    if (months < 0 || months > 60) { tool.querySelector('[data-growth-message]').textContent = 'This standard covers birth through 60 months only.'; tool.querySelector('[data-growth-z]').textContent = '—'; tool.querySelector('.uz-tool-result').hidden = false; return; }
+    const row = standards[data.get('sex')].find((item) => Number(item.Month) === months);
+    if (!row) return;
+    const L = Number(row.L), M = Number(row.M), S = Number(row.S);
+    const z = L === 0 ? Math.log(weight / M) / S : (Math.pow(weight / M, L) - 1) / (L * S);
+    const bounded = Math.max(-3, Math.min(3, z));
+    tool.querySelector('[data-growth-z]').textContent = `z = ${z.toFixed(2)} (${months} months)`;
+    tool.querySelector('[data-growth-message]').textContent = Math.abs(z) <= 2 ? 'Within the central WHO reference band. Trends over time and clinical context matter.' : 'Outside the central WHO reference band. Please discuss the measurement with a qualified child-health professional.';
+    tool.querySelector('[data-growth-marker]').style.left = `${((bounded + 3) / 6) * 100}%`;
+    tool.querySelector('.uz-tool-result').hidden = false;
+  });
+});

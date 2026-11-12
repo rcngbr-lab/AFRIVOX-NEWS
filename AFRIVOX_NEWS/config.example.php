@@ -1,7 +1,7 @@
 <?php
 return [
-  'site_name' => 'AFRIVOX NEWS',
-  'site_tagline' => 'Africa Has a Voice.',
+  'site_name' => 'UBUZIMACARE',
+  'site_tagline' => 'Knowledge for Better Health',
   // Add only verified official profiles. Empty values render as disabled icons.
   'social_profiles' => [
     'facebook' => '',
@@ -23,7 +23,7 @@ return [
   'active_app_key_id' => 'primary',
   // Separate HMAC key for the append-only audit chain.
   'audit_key' => getenv('AFRIVOX_AUDIT_KEY') ?: getenv('UM'.'URONGO_AUDIT_KEY') ?: '',
-  'mfa_issuer' => 'AFRIVOX NEWS',
+  'mfa_issuer' => 'UBUZIMACARE',
   // Keep originals outside the public document root.
   'private_media_path' => dirname(__DIR__).'/AFRIVOX_NEWS_PRIVATE_MEDIA',
   // Production approval must fail closed until a scanner integration marks files clean.

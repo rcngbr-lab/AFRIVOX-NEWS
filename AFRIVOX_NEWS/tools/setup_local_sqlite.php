@@ -96,4 +96,8 @@ if((int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn()===0){
  ];
  foreach($stories as $i=>$s){$cid=(int)$db->query("SELECT id FROM categories WHERE slug=".$db->quote($s[4]))->fetchColumn();$db->prepare("INSERT INTO articles(title,slug,summary,body,key_points,category_id,author_id,type,status,cover_image,image_caption,image_alt,image_credit,is_featured,is_breaking,is_demo,published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now',?))")->execute([$s[0],$s[1],$s[2],str_replace('\\n',"\n",$s[3]),"Demo content must not be represented as current reporting\nLive stories require verified sources and approval",$cid,$uid,$s[5],'published',$s[6],'AFRIVOX NEWS demonstration image',$s[0],$s[9]??'AFRIVOX NEWS / Demo Image',$s[7],$s[8],1,'-'.$i.' hours']);}
 }
+$parent=(int)($db->query("SELECT id FROM categories WHERE slug='ubuzima' LIMIT 1")->fetchColumn()?:0);
+$healthCategories=[['Ubuzima Rusange','general-health'],['VIH/SIDA','hiv-aids'],['Malariya','malaria'],['Kanseri','cancer'],['Diyabete','diabetes'],['Indwara z’Umutima','heart-diseases'],['Ubuzima bw’Ababyeyi n’Abana','maternal-child-health'],['Ubuzima bwo mu Mutwe','mental-health'],['Imirire','nutrition'],['Ubuzima bw’Imyororokere','sexual-reproductive-health'],['Indwara Zandura','infectious-diseases']];
+foreach($healthCategories as $i=>$category)$db->prepare("INSERT OR IGNORE INTO categories(name,slug,parent_id,language,sort_order,active) VALUES (?,?,?,'rw',?,1)")->execute([$category[0],$category[1],$parent?:null,101+$i]);
+$db->exec("INSERT OR IGNORE INTO schema_migrations(migration_key) VALUES ('20261109_v8_ubuzimacare_health')");
 echo "Local preview database is ready.\n";

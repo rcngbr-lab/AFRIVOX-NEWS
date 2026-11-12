@@ -1,0 +1,1 @@
+<?php declare(strict_types=1);require __DIR__.'/app/bootstrap.php';require_once __DIR__.'/app/health-pages.php';$l=health_language();render_health_listing_header($l==='rw'?'Imibereho Myiza':($l==='fr'?'Bien-être':'Wellness'),health_page_copy('tips_deck',$l),$l);render_health_tiles(health_tips(),$l,'tip');render_health_disclaimer($l);?></main><?php render_footer();
