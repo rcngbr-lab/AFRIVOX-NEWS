@@ -1,0 +1,3 @@
+<?php
+declare(strict_types=1);require __DIR__.'/app/bootstrap.php';require_once __DIR__.'/app/health-pages.php';$language=health_language();$title=health_page_copy('news',$language);$deck=health_page_copy('news_deck',$language);$stories=array_map(static fn(array $a):array=>preferred_article_language($a,$language),published_articles(24,'ubuzima'));render_health_listing_header($title,$deck,$language);?>
+<?php if($stories):?><div class="uz-story-grid uz-story-grid-wide"><?php foreach($stories as $story)card($story);?></div><?php else:?><p class="empty-state"><?=e(health_page_copy('empty',$language))?></p><?php endif;?><?php render_health_disclaimer($language);?></main><?php render_footer();

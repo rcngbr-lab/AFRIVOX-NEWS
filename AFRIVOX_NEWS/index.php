@@ -1,107 +1,35 @@
 <?php
+declare(strict_types=1);
 require __DIR__.'/app/bootstrap.php';
-
-$language=site_language();
+$language=health_language();
 $copy=[
-  'en'=>[
-    'demo'=>'DEMO CONTENT','demo_text'=>'Stories labelled DEMO are test records from the CMS, not current news.','featured'=>'Featured News','all'=>'View All News','subscribe'=>'Subscribe to Our Newsletter','subscribe_help'=>'Get the latest news delivered to your inbox.','email'=>'Your email address','consent'=>'I agree to receive AFRIVOX NEWS email and can unsubscribe at any time.','latest'=>'Latest News','videos'=>'AFRIVOX TV — Featured Videos','more_videos'=>'View More Videos','about'=>'We bring you trusted, accurate and in-depth news from Rwanda, across Africa and around the world. Our mission is to amplify African voices, promote positive change and keep you informed on the issues that matter.','learn'=>'Learn More','empty'=>'No published stories are available yet.','advertisement'=>'ADVERTISEMENT','popular'=>'Most Read','view'=>'View All','ad_title'=>'Advertising','ad_space'=>'Your campaign here','ad_cta'=>'Advertise with AFRIVOX NEWS','ad_note'=>'Commercial placements are reviewed separately from editorial coverage.'
-  ],
-  'rw'=>[
-    'demo'=>'IBIRIMO BY’IGERAGEZA','demo_text'=>'Inkuru ziriho ikimenyetso cya DEMO ni records zo kugerageza CMS; ntabwo ari amakuru y’ubu.','featured'=>'Inkuru Zatoranyijwe','all'=>'Reba Amakuru Yose','subscribe'=>'Iyandikishe kuri Newsletter','subscribe_help'=>'Akira amakuru aheruka kuri email yawe.','email'=>'Email yawe','consent'=>'Nemeye kwakira AFRIVOX NEWS kuri email kandi nshobora kwivana ku rutonde igihe cyose.','latest'=>'Amakuru Aheruka','videos'=>'AFRIVOX TV — Video Zatoranyijwe','more_videos'=>'Reba Izindi Video','about'=>'Tubagezaho amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi. Intego yacu ni ukumvikanisha amajwi y’Abanyafurika no kubagezaho ibibazo by’ingenzi.','learn'=>'Menya Byinshi','empty'=>'Nta nkuru zatangajwe ziraboneka.','advertisement'=>'UMWANYA W’AMAMAZA','popular'=>'Izasomwe Cyane','view'=>'Reba Zose','ad_title'=>'Kwamamaza','ad_space'=>'Kwamamaza kwawe hano','ad_cta'=>'Yamamaza kuri AFRIVOX NEWS','ad_note'=>'Kwamamaza kugenzurwa ukwako kandi ntikuvangwa n’inkuru z’ubwanditsi.'
-  ]
-];
-$t=static fn(string $key):string=>$copy[$language][$key]??$key;
-
-$articles=array_map(static fn(array $article):array=>preferred_article_language($article,$language),published_articles(48));
-$slots=active_homepage_articles();
-foreach($slots as $slot=>$article)$slots[$slot]=preferred_article_language($article,$language);
-$used=[];
-$takeSlot=static function(string $key)use($slots,&$used):?array{$story=$slots[$key]??null;if(!$story||isset($used[(int)$story['id']]))return null;$used[(int)$story['id']]=true;return $story;};
-$takeNext=static function(int $count)use($articles,&$used):array{$picked=[];foreach($articles as $story){$id=(int)$story['id'];if(isset($used[$id]))continue;$used[$id]=true;$picked[]=$story;if(count($picked)>=$count)break;}return $picked;};
-
-$lead=$takeSlot('lead')??($takeNext(1)[0]??null);
-$secondary=array_values(array_filter([$takeSlot('secondary_1'),$takeSlot('secondary_2'),$takeSlot('secondary_3'),$takeSlot('secondary_4')]));
-if(count($secondary)<4)$secondary=array_merge($secondary,$takeNext(4-count($secondary)));
-$heroSlides=array_values(array_filter(array_merge([$lead],$secondary)));
-$featured=[];
-foreach($articles as $story){$storyId=(int)$story['id'];if(isset($used[$storyId]))continue;$used[$storyId]=true;$featured[$storyId]=$story;if(count($featured)>=4)break;}
-$featured=array_values($featured);
-$latest=array_values(array_filter($articles,static fn(array $story):bool=>!$lead||(int)$story['id']!==(int)$lead['id']));
-$latest=array_slice($latest,0,6);
-$featuredVideos=array_slice(array_values(array_filter($articles,static fn(array $story):bool=>(string)($story['type']??'')==='video')),0,4);
-
-$categorySections=[];
-foreach([
-  'amakuru'=>$language==='en'?'Rwanda News':'Amakuru y’u Rwanda',
-  'ubukungu'=>$language==='en'?'Business & Economy':'Ubukungu',
-  'ikoranabuhanga'=>$language==='en'?'Technology':'Ikoranabuhanga',
-  'ubuzima'=>$language==='en'?'Health':'Ubuzima',
-  'isi'=>$language==='en'?'World News':'Amakuru yo ku Isi',
-  'iperereza'=>$language==='en'?'Investigations':'Iperereza'
-] as $slug=>$title){$items=array_map(static fn(array $article):array=>preferred_article_language($article,$language),published_articles(4,$slug));if($items)$categorySections[]=['slug'=>$slug,'title'=>$title,'items'=>$items];}
-
-$trendingSelect=preg_replace('/^SELECT /','SELECT (SELECT COUNT(*) FROM analytics_events ae WHERE ae.article_id=a.id) AS view_count,',public_article_select(),1);
-$trending=query_all($trendingSelect.' WHERE '.published_where().' ORDER BY view_count DESC,a.published_at DESC LIMIT 4');
-if(!array_filter($trending,static fn(array $story):bool=>(int)($story['view_count']??0)>0))$trending=[];
-
-$quickNav=[
-  ['Rwanda','amakuru','#1262a8','<path d="M5 11 12 5l7 6v8h-5v-5h-4v5H5z"/>'],
-  ['Africa','Africa','#08743f','<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-2 3 4 1 2 4-3 2-1 5-4-3-2-5 4-4Z"/>'],
-  [$language==='en'?'World':'Isi','isi','#14549e','<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>'],
-  [$language==='en'?'Business':'Ubukungu','ubukungu','#14628f','<path d="M4 19V9h4v10H4Zm6 0V4h4v15h-4Zm6 0v-7h4v7h-4Z"/>'],
-  [$language==='en'?'Technology':'Ikoranabuhanga','ikoranabuhanga','#0b80b3','<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 1v4m6-4v4M9 19v4m6-4v4M1 9h4m-4 6h4m14-6h4m-4 6h4M10 10h4v4h-4z"/>'],
-  [$language==='en'?'Health':'Ubuzima','ubuzima','#10824b','<path d="M12 20S4 15 4 9a4 4 0 0 1 7-3 4 4 0 0 1 7 3c0 6-6 11-6 11Z"/><path d="M7 12h3l1-3 2 6 1-3h3"/>'],
-  [$language==='en'?'Community':'Umuryango','umuco','#71309b','<circle cx="9" cy="9" r="3"/><circle cx="16" cy="10" r="2.5"/><path d="M3 20c0-4 2-6 6-6s6 2 6 6m0-5c3 0 5 2 5 5"/>'],
-  [$language==='en'?'Investigations':'Iperereza','iperereza','#125ca5','<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/>'],
-  [$language==='en'?'Videos':'Video','media','#c81e48','<circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4V8Z"/>']
-];
-
-function av_home_card(array $story,string $language,string $class=''):void{$cover=media_url($story['cover_image']??'');?>
-<article class="av-news-card <?=e($class)?>"><a class="av-card-image" href="<?=e(article_url($story))?>" aria-label="<?=e($story['title'])?>"><?php if($cover):?><img src="<?=e($cover)?>" loading="lazy" alt="<?=e(($story['image_alt']??'')?:($story['image_caption']??'')?:$story['title'])?>"><?php else:?><span>AFRIVOX NEWS</span><?php endif;?><b><?=e(strtoupper((string)$story['category_name']))?></b></a><div class="av-card-body"><h3><a href="<?=e(article_url($story))?>"><?=e($story['title'])?></a></h3><div class="av-meta"><span>◷ <?=e(relative_time($story['published_at'],$language))?></span></div><?php if(!empty($story['is_demo'])):?><span class="demo-chip">DEMO / URUGERO</span><?php endif;?></div></article>
-<?php }
-
-function av_category_story(array $story,string $language):void{$cover=media_url($story['cover_image']??'');?>
-<article class="av-category-story"><a class="av-category-story-image" href="<?=e(article_url($story))?>" aria-label="<?=e($story['title'])?>"><?php if($cover):?><img src="<?=e($cover)?>" loading="lazy" alt="<?=e(($story['image_alt']??'')?:($story['image_caption']??'')?:$story['title'])?>"><?php else:?><span>AV</span><?php endif;?></a><div><span class="av-category-story-label"><?=e(strtoupper((string)$story['category_name']))?> · <?=e(strtoupper(str_replace('_',' ',(string)$story['type'])))?></span><h3><a href="<?=e(article_url($story))?>"><?=e($story['title'])?></a></h3><p><?=e(excerpt((string)$story['summary'],125))?></p><small>◷ <?=e(relative_time($story['published_at'],$language))?></small><?php if(!empty($story['is_demo'])):?><span class="demo-chip">DEMO / URUGERO</span><?php endif;?></div></article>
-<?php }
-
-function av_ranked_story(array $story,string $language,int $rank):void{?>
-<article class="av-ranked-story"><strong><?=str_pad((string)$rank,2,'0',STR_PAD_LEFT)?></strong><div><span><?=e(strtoupper((string)$story['category_name']))?> · <?=e(relative_time($story['published_at'],$language))?></span><h3><a href="<?=e(article_url($story))?>"><?=e($story['title'])?></a></h3><p><?=e(excerpt((string)$story['summary'],145))?></p></div></article>
-<?php }
-
-render_header('', $language==='en'?'Trusted, accurate and in-depth news from Rwanda, Africa and the world.':'Amakuru yizewe kandi acukumbuye yo mu Rwanda, Afurika no ku isi.',$language);
+ 'rw'=>['top'=>'Inkuru y’Ingenzi','welcome'=>'Ubumenyi bufasha gufata ibyemezo byiza ku buzima','deck'=>'Amakuru y’ubuzima, inyigisho zisobanutse n’ibikoresho by’ikoranabuhanga—bigenzurwa n’ubwanditsi kandi bigaragaza aho byakomotse.','read'=>'Soma byinshi','recent'=>'Amakuru Agezweho','all'=>'Reba byose','news'=>'Amakuru y’Ubuzima','topics'=>'Ibyiciro by’Ubuzima','tips'=>'Inama z’Ubuzima','tools'=>'Ibikoresho','newsletter'=>'Iyandikishe ku Kanyamakuru','newsletter_help'=>'Uba uwa mbere kubona amakuru mashya.','email'=>'Andika email yawe…','join'=>'Iyandikishe','empty'=>'Nta nkuru y’ubuzima yemejwe iratangazwa. Ubwanditsi buzazishyira hano zimaze gusuzumwa.','education'=>'UBUZIMACARE itanga ubumenyi rusange; ntabwo isimbura umuganga.'],
+ 'en'=>['top'=>'Top Story','welcome'=>'Knowledge for better health decisions','deck'=>'Health news, clear education and useful digital tools—editorially reviewed and transparently sourced.','read'=>'Read story','recent'=>'Latest Health News','all'=>'View all','news'=>'Health News','topics'=>'Health Topics','tips'=>'Health Tips','tools'=>'Health Tools','newsletter'=>'Subscribe to the Health Newsletter','newsletter_help'=>'Receive newly published health education first.','email'=>'Your email address…','join'=>'Subscribe','empty'=>'No reviewed health story is published yet. The newsroom will show content here after approval.','education'=>'UBUZIMACARE provides general education and does not replace a health professional.'],
+ 'fr'=>['top'=>'À la une','welcome'=>'Des connaissances pour de meilleures décisions de santé','deck'=>'Actualités santé, éducation claire et outils numériques utiles—révisés et sourcés.','read'=>'Lire l’article','recent'=>'Actualités récentes','all'=>'Tout voir','news'=>'Actualités santé','topics'=>'Thèmes santé','tips'=>'Conseils santé','tools'=>'Outils santé','newsletter'=>'S’abonner à l’infolettre santé','newsletter_help'=>'Recevez les nouvelles publications de santé.','email'=>'Votre adresse e-mail…','join'=>'S’abonner','empty'=>'Aucun article santé révisé n’est encore publié.','education'=>'UBUZIMACARE informe et ne remplace pas un professionnel de santé.']
+][$language];
+$stories=array_map(static fn(array $a):array=>preferred_article_language($a,$language),published_articles(8,'ubuzima'));
+$lead=$stories[0]??null;$recent=array_slice($stories,1,3);
+render_header('', $copy['deck'],$language);
 ?>
-<main id="main-content" class="afrivox-home" tabindex="-1">
-<section class="container av-hero" aria-label="Featured stories">
-<?php if($lead):?>
-  <section class="av-lead av-headline-slider" data-av-headline-slider aria-roledescription="carousel" aria-label="<?=$language==='en'?'Top headlines':'Inkuru z’ingenzi'?>">
-    <div class="av-headline-slides"><?php foreach($heroSlides as $slideIndex=>$story):$slideCover=media_url($story['cover_image']??'');?>
-      <article class="av-lead-slide<?=$slideIndex===0?' is-active':''?>" data-av-slide="<?=$slideIndex?>" aria-hidden="<?=$slideIndex===0?'false':'true'?>"><a href="<?=e(article_url($story))?>" class="av-lead-image" tabindex="<?=$slideIndex===0?'0':'-1'?>"><?php if($slideCover):?><img src="<?=e($slideCover)?>" <?=$slideIndex===0?'fetchpriority="high"':'loading="lazy"'?> alt="<?=e(($story['image_alt']??'')?:($story['image_caption']??'')?:$story['title'])?>"><?php else:?><span class="av-image-fallback">AFRIVOX NEWS</span><?php endif;?><span class="av-lead-overlay"><b><?=e(strtoupper((string)$story['category_name']))?></b><?php if($slideIndex===0):?><h1><?=e($story['title'])?></h1><?php else:?><h2><?=e($story['title'])?></h2><?php endif;?><p><?=e(excerpt($story['summary'],180))?></p><span class="av-lead-meta">◷ <?=e(relative_time($story['published_at'],$language))?></span><?php if($story['is_demo']):?><em>DEMO / URUGERO</em><?php endif;?></span></a></article>
-    <?php endforeach;?></div>
-    <?php if(count($heroSlides)>1):?><button class="av-slider-arrow av-slider-prev" type="button" data-av-slide-prev aria-label="<?=$language==='en'?'Previous headline':'Inkuru ibanza'?>">‹</button><button class="av-slider-arrow av-slider-next" type="button" data-av-slide-next aria-label="<?=$language==='en'?'Next headline':'Inkuru ikurikira'?>">›</button><div class="av-slider-dots" role="tablist" aria-label="<?=$language==='en'?'Choose headline':'Hitamo inkuru'?>"><?php foreach($heroSlides as $slideIndex=>$story):?><button type="button" role="tab" data-av-slide-to="<?=$slideIndex?>" aria-selected="<?=$slideIndex===0?'true':'false'?>" aria-label="<?=e(($language==='en'?'Headline ':'Inkuru ').($slideIndex+1).': '.$story['title'])?>"></button><?php endforeach;?></div><span class="sr-only" data-av-slide-status aria-live="polite"></span><?php endif;?>
-  </section>
-  <div class="av-secondary" aria-label="More top stories"><?php foreach($secondary as $storyIndex=>$story):$cover=media_url($story['cover_image']??'');?><article data-av-hero-thumb="<?=$storyIndex+1?>"><a class="av-secondary-image" href="<?=e(article_url($story))?>"><?php if($cover):?><img src="<?=e($cover)?>" loading="eager" alt="<?=e(($story['image_alt']??'')?:($story['image_caption']??'')?:$story['title'])?>"><?php else:?><span>AV</span><?php endif;?></a><div><b><?=e(strtoupper((string)$story['category_name']))?></b><h2><a href="<?=e(article_url($story))?>"><?=e($story['title'])?></a></h2><small>◷ <?=e(relative_time($story['published_at'],$language))?></small><?php if($story['is_demo']):?><em>DEMO</em><?php endif;?><button type="button" class="av-secondary-selector" data-av-slide-to="<?=$storyIndex+1?>" aria-label="<?=e(($language==='en'?'Show headline: ':'Erekana inkuru: ').$story['title'])?>"></button></div></article><?php endforeach;?></div>
-  <aside class="av-about-card"><img src="<?=e(path('assets/africa-mark.svg'))?>" alt="" aria-hidden="true"><h2>AFRIVOX NEWS</h2><h3>Africa Has a Voice.</h3><span></span><p><?=e($t('about'))?></p><a href="<?=e(localized_path('about.php',$language))?>"><?=e($t('learn'))?> <b>→</b></a></aside>
-<?php else:?><p class="empty-state"><?=e($t('empty'))?></p><?php endif;?>
-</section>
-
-<nav class="container av-quick-nav" aria-label="News categories"><?php foreach($quickNav as $quickIndex=>[$label,$slug,$color,$icon]):$url=$slug==='Africa'?localized_path('search.php?q=Africa',$language):($slug==='media'?localized_path('media.php',$language):localized_path('category.php?slug='.$slug,$language));?><a href="<?=e($url)?>" class="av-quick-item av-quick-<?=e((string)$quickIndex)?>"><span><svg viewBox="0 0 24 24" aria-hidden="true"><?=$icon?></svg></span><b><?=e($label)?></b></a><?php endforeach;?></nav>
-
-<?php if($featured):?><section class="container av-featured"><div class="av-section-title"><h2><?=e($t('featured'))?></h2><a href="<?=e(localized_path('search.php',$language))?>"><?=e($t('all'))?> <b>→</b></a></div><div class="av-featured-layout"><div class="av-featured-grid"><?php foreach($featured as $story)av_home_card($story,$language);?></div><aside class="av-home-sidebar"><section class="av-newsletter-widget"><div class="av-envelope" aria-hidden="true">✉</div><h2><?=e($t('subscribe'))?></h2><p><?=e($t('subscribe_help'))?></p><form action="<?=e(localized_path('newsletter.php',$language))?>" method="post"><?=csrf_field()?><div class="honeypot" aria-hidden="true"><label>Website<input type="text" name="website" autocomplete="off" tabindex="-1"></label></div><input type="hidden" name="locale" value="<?=e($language)?>"><label class="sr-only" for="home-newsletter-email"><?=e($t('email'))?></label><div><input id="home-newsletter-email" type="email" name="email" required maxlength="190" autocomplete="email" placeholder="<?=e($t('email'))?>"><button type="submit">Subscribe</button></div><label class="av-consent"><input type="checkbox" name="consent" value="1" required> <?=e($t('consent'))?></label></form></section><section class="av-brand-banner"><img src="<?=e(path('assets/africa-mark.svg'))?>" alt="" aria-hidden="true"><small>AFRIVOX NEWS</small><strong>Africa Has a Voice.</strong><span></span></section></aside></div></section><?php endif;?>
-
-<?php if(array_filter($articles,static fn(array $story):bool=>!empty($story['is_demo']))):?><div class="container av-demo-alert"><strong><?=e($t('demo'))?></strong><span><?=e($t('demo_text'))?></span></div><?php endif;?>
-
-<?php if($latest):?><section class="av-soft-section"><div class="container"><div class="av-section-title"><h2><?=e($t('latest'))?></h2><a href="<?=e(localized_path('search.php',$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-latest-grid"><?php foreach($latest as $story)av_home_card($story,$language);?></div></div></section><?php endif;?>
-
-<?php if($featuredVideos):?><section class="container av-video-showcase" aria-labelledby="featured-videos-title"><div class="av-section-title"><h2 id="featured-videos-title"><span aria-hidden="true">▶</span> <?=e($t('videos'))?></h2><a href="<?=e(localized_path('media.php',$language))?>"><?=e($t('more_videos'))?> <b>→</b></a></div><div class="av-video-grid"><?php foreach($featuredVideos as $story)av_home_card($story,$language,'av-video-card');?></div></section><?php endif;?>
-
-<?php if($categorySections):?><section class="container av-category-layout">
-  <div class="av-category-feed">
-    <?php foreach($categorySections as $section):?><section class="av-category-section"><div class="av-section-title"><h2><?=e($section['title'])?></h2><a href="<?=e(localized_path('category.php?slug='.$section['slug'],$language))?>"><?=e($t('view'))?> <b>→</b></a></div><div class="av-category-story-grid"><?php foreach($section['items'] as $story)av_category_story($story,$language);?></div></section><?php endforeach;?>
-  </div>
-  <?php render_ad_rail($language,'home-advertising-title'); ?>
-</section><?php endif;?>
-
-<?php if($trending):?><section class="container av-category-section av-most-read"><div class="av-section-title"><h2><?=e($t('popular'))?></h2></div><div class="av-ranked-grid"><?php foreach($trending as $rank=>$story)av_ranked_story(preferred_article_language($story,$language),$language,$rank+1);?></div></section><?php endif;?>
-
+<main id="main-content" class="uz-home" tabindex="-1">
+ <section class="container uz-hero-grid" aria-label="<?=e($copy['top'])?>">
+  <article class="uz-hero-card">
+   <?php if($lead):$cover=media_url($lead['cover_image']??'');?><a href="<?=e(article_url($lead,$language))?>" class="uz-hero-media"><?php if($cover):?><img src="<?=e($cover)?>" alt="<?=e(($lead['image_alt']??'')?:$lead['title'])?>" fetchpriority="high"><?php endif;?><div class="uz-hero-copy"><span><?=e($copy['top'])?></span><h1><?=e($lead['title'])?></h1><p><?=e(excerpt((string)$lead['summary'],180))?></p><b><?=e($copy['read'])?> →</b><?php if(!empty($lead['is_demo'])):?><em>DEMO / URUGERO</em><?php endif;?></div></a>
+   <?php else:?><div class="uz-hero-empty"><span><?=e($copy['top'])?></span><h1><?=e($copy['welcome'])?></h1><p><?=e($copy['deck'])?></p><a href="<?=e(localized_path('health-topics.php',$language))?>"><?=e($copy['topics'])?> →</a></div><?php endif;?>
+  </article>
+  <aside class="uz-recent-panel"><div class="uz-panel-title"><h2><?=e($copy['recent'])?></h2><a href="<?=e(localized_path('health-news.php',$language))?>"><?=e($copy['all'])?> →</a></div><?php if($recent):foreach($recent as $story):?><article><h3><a href="<?=e(article_url($story,$language))?>"><?=e($story['title'])?></a></h3><small><?=e(display_date($story['published_at']))?></small><?php if(!empty($story['is_demo'])):?><span class="demo-chip">DEMO</span><?php endif;?></article><?php endforeach;else:?><p><?=e($copy['empty'])?></p><?php endif;?></aside>
+ </section>
+ <nav class="container uz-quick-access" aria-label="<?=e($copy['tools'])?>">
+  <a href="<?=e(localized_path('health-news.php',$language))?>"><span>♥</span><strong><?=e($copy['news'])?></strong></a>
+  <a href="<?=e(localized_path('health-topics.php',$language))?>"><span>▤</span><strong><?=e($copy['topics'])?></strong></a>
+  <a href="<?=e(localized_path('health-tips.php',$language))?>"><span>☀</span><strong><?=e($copy['tips'])?></strong></a>
+  <?php foreach(health_tools() as $tool):?><a href="<?=e(localized_path($tool['slug'],$language))?>"><span><?=e($tool['icon'])?></span><strong><?=e(health_text($tool['name'],$language))?></strong></a><?php endforeach;?>
+ </nav>
+ <section class="container uz-home-columns">
+  <div><div class="uz-section-heading"><h2><?=e($copy['news'])?></h2><a href="<?=e(localized_path('health-news.php',$language))?>"><?=e($copy['all'])?> →</a></div><?php if($stories):?><div class="uz-story-grid"><?php foreach(array_slice($stories,0,4) as $story)card($story);?></div><?php else:?><p class="empty-state"><?=e($copy['empty'])?></p><?php endif;?></div>
+  <aside><div class="uz-section-heading"><h2><?=e($copy['topics'])?></h2><a href="<?=e(localized_path('health-topics.php',$language))?>"><?=e($copy['all'])?> →</a></div><div class="uz-topic-mini"><?php foreach(array_slice(health_topics(),0,8) as $topic):?><a href="<?=e(localized_path('health-topic.php?slug='.$topic['slug'],$language))?>"><span><?=e($topic['icon'])?></span><b><?=e(health_text($topic['name'],$language))?></b></a><?php endforeach;?></div></aside>
+ </section>
+ <section class="container uz-newsletter-band"><div><span>✉</span><div><h2><?=e($copy['newsletter'])?></h2><p><?=e($copy['newsletter_help'])?></p></div></div><form action="<?=e(localized_path('newsletter.php',$language))?>" method="post"><?=csrf_field()?><input type="hidden" name="locale" value="<?=e($language)?>"><input class="honeypot" type="text" name="website" tabindex="-1" autocomplete="off"><label class="sr-only" for="home-email"><?=e($copy['email'])?></label><input id="home-email" type="email" name="email" required placeholder="<?=e($copy['email'])?>"><label class="uz-consent"><input type="checkbox" name="consent" value="1" required> <?=e($copy['education'])?></label><button><?=e($copy['join'])?></button></form></section>
+ <section class="container uz-disclaimer" role="note"><strong>ⓘ</strong><p><?=e($copy['education'])?></p></section>
 </main>
-<?php render_footer(); ?>
+<?php render_footer();
