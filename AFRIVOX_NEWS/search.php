@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/app/bootstrap.php';
+require_once __DIR__.'/app/health-pages.php';
 
 $language=health_language();
 $query=trim(mb_substr((string)($_GET['q']??''),0,120));
