@@ -28,7 +28,7 @@ There is no default operational password. Initial credentials must be delivered 
 |---|---|---|
 | Reporter / investigative reporter / contributor | Pitch, accept assignment, draft own story, protect own source material, upload media, draft live update | Approve or publish own story/update; approve own media |
 | Editor / section editor / managing editor / Editor-in-Chief | Decide pitches, assign work, review/edit, request revision, approve/publish when gates pass, manage live coverage | Complete fact/legal/media-rights check without that specialist permission; self-approve |
-| Fact-checker / legal reviewer / copy editor | Perform the exact specialist check authorized to the role | Substitute for another specialist or publish |
+| Fact-checker / legal reviewer / medical reviewer / copy editor | Open the read-only review copy, inspect permitted evidence and perform the exact specialist check authorized to the role | Substitute for another specialist, silently edit the story or publish |
 | Photographer / video producer / multimedia editor | Upload and describe media; multimedia editor independently approves eligible assets | Uploader approving the same asset; using unlicensed/expired assets |
 | SEO & audience / subscriber support | SEO and audience checks, subscriber/contact operations and permitted analytics | Editorial approval, finance approval or exposing reader PII |
 | Advertising manager | Advertiser and campaign drafts, submission and permitted campaign status work | Approve own campaign or influence independent editorial conclusions |
@@ -74,12 +74,12 @@ Read the recorded explanation, change only what is required, add a useful revisi
 
 ### Review and publish an article
 
-1. Open **Articles** and select the submitted item.
+1. Open **Editorial Desk**. Use its state, required-review and publication-readiness columns to select the submitted item.
 2. Confirm author, ownership, category/type/language, risk, public sources, source classification, media rights and right-of-reply state.
-3. Begin review and route required work to fact-check or legal review. Generic editor permission cannot record those specialist outcomes.
+3. Begin review and route required work to fact-check, legal or medical review. Generic editor permission cannot record those specialist outcomes.
 4. Request revision with a clear explanation when needed.
 5. Approval must be by someone other than the author. Failed checks, plaintext protected data, missing source classification, pending/expired media or missing high-risk evidence block approval.
-6. Schedule only with a future time or publish after approval. Critical-risk publication requires an actor different from both author and approver.
+6. Use the workflow decision bar to schedule only with a future time or publish after approval. Critical-risk publication requires an actor different from both author and approver.
 7. Verify the public article’s title, byline, dates, category, sources, media caption/credit, language and correction notice.
 
 ### Curate taxonomy and homepage
@@ -90,9 +90,10 @@ Read the recorded explanation, change only what is required, add a useful revisi
 
 ## 6. Specialist checks
 
-1. Open the assigned article and read the evidence relevant to your permission.
-2. Record `passed`, `failed`, `pending` or `not_applicable` honestly and add a useful evidence note.
+1. Open **Editorial Desk**, then open the assigned article. The review copy is read-only unless your separate role also permits content editing.
+2. Record `passed`, `failed`, `pending` or `not_applicable` honestly. Every completed outcome requires an evidence note of at least ten characters.
 3. A failed check is a publication blocker. Escalate uncertainty; do not mark `passed` to move the queue.
+4. Checks lock after approval, scheduling or publication. Return the story through the authorized review workflow before changing a decision.
 4. Fact-check, legal, copy, media-rights, SEO, source, fairness, right-of-reply and accessibility checks are distinct.
 
 ## 7. Live coverage
@@ -159,7 +160,8 @@ Open the active event, write a concise attributed update and save it as draft. I
 
 ## 11. Corrections, retractions and incidents
 
-- Use a visible correction note for material public changes and retain the revision/transition history.
+- Open **Corrections** for previously published stories. Unpublish with a recorded explanation, return the story to review, edit it with a new internal revision note, obtain fresh approval, add a visible public correction/update notice and only then republish.
+- Silent content edits to approved, scheduled, published, retracted or archived stories are blocked. A republished story must retain its original publication record and correction notice.
 - Unpublish or retract only with the required explanation and editorial authority.
 - Immediately escalate suspected source exposure, account compromise, malicious upload, inaccurate breaking update, legal complaint, privacy request, financial discrepancy or audit-chain failure.
 - Do not erase evidence, rotate keys, reset accounts or restore backups without the named incident/release authority.

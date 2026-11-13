@@ -54,6 +54,16 @@ check(!EditorialWorkflow::canTransition('editor','under_review','approved',['aut
 check(!EditorialWorkflow::canTransition('editor','under_review','approved',['author_id'=>7,'actor_id'=>8,'medical_review_required'=>1,'medical_outcome'=>'passed','medical_checked_by'=>7]),'author cannot provide their own medical review');
 check(EditorialWorkflow::canTransition('editor','under_review','approved',['author_id'=>7,'actor_id'=>8,'medical_review_required'=>1,'medical_outcome'=>'passed','medical_checked_by'=>9]),'independent passed medical review permits approval');
 check(EditorialWorkflow::canCompleteCheck('multimedia_editor','media_rights'),'multimedia editor can complete media rights check');
+check(EditorialWorkflow::canTransition('fact_checker','fact_check_pending','under_review'),'fact-checker can return a checked story to editorial review');
+check(EditorialWorkflow::canTransition('legal_reviewer','legal_review_pending','under_review'),'legal reviewer can return a reviewed story to the editorial desk');
+check(EditorialWorkflow::allows('medical_reviewer','article.view_all')&&EditorialWorkflow::allows('fact_checker','article.view_all')&&EditorialWorkflow::allows('legal_reviewer','article.view_all'),'specialist reviewers can open the read-only review workspace');
+check(EditorialWorkflow::contentEditableStatus('under_review')&&!EditorialWorkflow::contentEditableStatus('approved')&&!EditorialWorkflow::contentEditableStatus('published'),'approved and published stories are content-locked until returned to review');
+check(EditorialWorkflow::checkSubmissionError('under_review','passed','')!==null,'completed specialist check requires an evidence note');
+check(EditorialWorkflow::checkSubmissionError('under_review','passed','Verified against the clinical source document.')===null,'completed specialist check accepts a meaningful evidence note');
+check(EditorialWorkflow::checkSubmissionError('published','pending','')!==null,'published-story checks are locked');
+check(EditorialWorkflow::republishCorrectionError(['published_at'=>'2026-11-01 10:00:00','correction_note'=>''],'published')!==null,'republishing requires a public correction notice');
+check(EditorialWorkflow::republishCorrectionError(['published_at'=>'2026-11-01 10:00:00','correction_note'=>'Corrected the dosage unit after medical review.'],'published')===null,'documented correction can proceed to controlled republication');
+check(count(EditorialWorkflow::publicationGateFailures(['fact_check_required'=>1,'fact_check_outcome'=>'pending']))===1,'publication gate report exposes required fact-check blocker');
 
 $key='base64:'.base64_encode(str_repeat('k',32));$plain="Source: protected person\nPhone: +250000000";$cipher=Security::encrypt($plain,$key);
 check(str_starts_with($cipher,'v2.primary.')&&!str_contains($cipher,'protected person'),'source note is encrypted at rest with key identifier');

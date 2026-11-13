@@ -10,7 +10,7 @@ final class EditorialWorkflow
         // Technical administrators deliberately have no editorial approve/publish authority.
         'system_administrator'=>['staff.create','staff.manage_roles','staff.suspend','staff.revoke_sessions','system.configure','security.manage','backup.manage','audit.view','analytics.system'],
         'admin'=>['staff.create','staff.manage_roles','staff.suspend','staff.revoke_sessions','system.configure','security.manage','backup.manage','audit.view','analytics.system'],
-        'publisher'=>['article.view_all','analytics.view','commercial.reports','advertising.approve','finance.view','finance.reconcile','settings.view'],
+        'publisher'=>['analytics.view','commercial.reports','advertising.approve','finance.view','finance.reconcile','settings.view'],
         'editor_in_chief'=>['article.*','workflow.*','pitch.create','pitch.review','assignment.manage','assignment.work','live.manage','live.update','live.approve','checks.sources','checks.fairness','checks.right_of_reply','checks.copy','checks.accessibility','source.view_confidential','source.manage_confidential','media.approve','media.manage_rights','staff.view','audit.view','homepage.manage','category.manage','analytics.view','inbox.manage'],
         'managing_editor'=>['article.*','workflow.*','pitch.create','pitch.review','assignment.manage','assignment.work','live.manage','live.update','live.approve','checks.sources','checks.fairness','checks.right_of_reply','checks.copy','checks.accessibility','source.view_confidential','source.manage_confidential','media.approve','media.manage_rights','audit.view','homepage.manage','category.manage','analytics.view','inbox.manage','newsletter.view'],
         'section_editor'=>['article.view_all','article.edit_all','workflow.review','workflow.approve','workflow.publish','pitch.create','pitch.review','assignment.manage','assignment.work','live.manage','live.update','live.approve','checks.sources','checks.fairness','checks.right_of_reply','checks.accessibility','source.view_confidential','media.use','homepage.manage'],
@@ -79,28 +79,7 @@ final class EditorialWorkflow
 
     private static function publicationGatesPass(array $article): bool
     {
-        if(self::checkFailed($article))return false;
-        if(array_key_exists('source_classification_complete',$article)&&empty($article['source_classification_complete']))return false;
-        if(array_key_exists('confidential_data_protected',$article)&&empty($article['confidential_data_protected']))return false;
-        $risk=(string)($article['risk_level']??'standard');$high=in_array($risk,['high','critical'],true);
-        if(!empty($article['fact_check_required'])&&($article['fact_check_outcome']??null)!=='passed')return false;
-        if(!empty($article['legal_review_required'])&&($article['legal_outcome']??null)!=='passed')return false;
-        if(!empty($article['medical_review_required'])){
-            if(($article['medical_outcome']??null)!=='passed')return false;
-            if(!empty($article['medical_checked_by'])&&!empty($article['author_id'])&&(int)$article['medical_checked_by']===(int)$article['author_id'])return false;
-        }
-        if($high){foreach(['sources','fairness','fact_check','legal'] as $required)if(($article[$required.'_outcome']??null)!=='passed')return false;}
-        $reply=(string)($article['right_of_reply_status']??'not_applicable');
-        if($high||$reply!=='not_applicable'){
-            $outcome=$article['right_of_reply_outcome']??null;
-            if($reply==='not_applicable'){if(!in_array($outcome,['passed','not_applicable'],true))return false;}
-            elseif(!in_array($reply,['received','declined','published_response'],true)||$outcome!=='passed')return false;
-        }
-        if(!empty($article['media_count'])){
-            if(empty($article['media_all_approved'])||($article['media_rights_outcome']??null)!=='passed')return false;
-        }
-        if(!empty($article['untracked_upload_media']))return false;
-        return true;
+        return self::publicationGateFailures($article)===[];
     }
 
     public static function canTransition(string|array $roles,string $from,string $to,array $article=[]): bool
@@ -109,7 +88,7 @@ final class EditorialWorkflow
         $allows=fn(string $permission):bool=>self::allowsRoles($roles,$permission)||self::allowsRoles($roles,'workflow.*');
         if($to==='submitted')return $allows('workflow.submit');
         if($to==='revision_requested')return $allows('workflow.review')||$allows('workflow.fact_check')||$allows('workflow.legal_review');
-        if($to==='under_review')return $allows('workflow.review')||($from==='unpublished'&&$allows('workflow.publish'));
+        if($to==='under_review')return $allows('workflow.review')||($from==='fact_check_pending'&&$allows('workflow.fact_check'))||($from==='legal_review_pending'&&$allows('workflow.legal_review'))||($from==='unpublished'&&$allows('workflow.publish'));
         if($to==='fact_check_pending'||$to==='legal_review_pending')return $allows('workflow.review');
         if($from==='fact_check_pending'&&!$allows('workflow.fact_check'))return false;
         if($from==='legal_review_pending'&&!$allows('workflow.legal_review'))return false;
@@ -130,6 +109,53 @@ final class EditorialWorkflow
 
     public static function transitionRequiresExplanation(string $from,string $to): bool
     {return in_array($to,['revision_requested','unpublished','retracted','archived'],true);}
+
+    public static function contentEditableStatus(string $status): bool
+    {
+        return in_array($status,['draft','submitted','revision_requested','under_review','fact_check_pending','legal_review_pending'],true);
+    }
+
+    public static function checkSubmissionError(string $status,string $outcome,string $notes): ?string
+    {
+        if(!in_array($status,['submitted','revision_requested','under_review','fact_check_pending','legal_review_pending'],true))return 'Editorial checks are locked in this workflow state. Return the story to review first.';
+        if(!in_array($outcome,['pending','passed','failed','not_applicable'],true))return 'Invalid editorial-check outcome.';
+        if($outcome!=='pending'&&mb_strlen(trim($notes))<10)return 'Passed, failed and not-applicable checks require an evidence note of at least 10 characters.';
+        return null;
+    }
+
+    public static function republishCorrectionError(array $article,string $to): ?string
+    {
+        if($to==='published'&&!empty($article['published_at'])&&mb_strlen(trim((string)($article['correction_note']??'')))<10)return 'Republishing a corrected story requires a public correction/update notice of at least 10 characters.';
+        return null;
+    }
+
+    public static function publicationGateFailures(array $article): array
+    {
+        $failures=[];
+        foreach(['sources','fairness','right_of_reply','fact_check','legal','medical','copy','media_rights','seo','accessibility'] as $type){
+            if(($article[$type.'_outcome']??null)==='failed')$failures[]='The '.str_replace('_',' ',$type).' check has failed.';
+        }
+        if(array_key_exists('source_classification_complete',$article)&&empty($article['source_classification_complete']))$failures[]='Source confidentiality classification is incomplete.';
+        if(array_key_exists('confidential_data_protected',$article)&&empty($article['confidential_data_protected']))$failures[]='Confidential source material is not protected by the approved encryption envelope.';
+        $risk=(string)($article['risk_level']??'standard');$high=in_array($risk,['high','critical'],true);
+        if(!empty($article['fact_check_required'])&&($article['fact_check_outcome']??null)!=='passed')$failures[]='Required fact-check has not passed.';
+        if(!empty($article['legal_review_required'])&&($article['legal_outcome']??null)!=='passed')$failures[]='Required legal review has not passed.';
+        if(!empty($article['medical_review_required'])){
+            if(($article['medical_outcome']??null)!=='passed')$failures[]='Required medical review has not passed.';
+            elseif(!empty($article['medical_checked_by'])&&!empty($article['author_id'])&&(int)$article['medical_checked_by']===(int)$article['author_id'])$failures[]='Medical review must be completed by someone other than the author.';
+        }
+        if($high){foreach(['sources','fairness','fact_check','legal'] as $required)if(($article[$required.'_outcome']??null)!=='passed')$failures[]='High-risk story requires a passed '.str_replace('_',' ',$required).' check.';}
+        $reply=(string)($article['right_of_reply_status']??'not_applicable');
+        if($high||$reply!=='not_applicable'){
+            $outcome=$article['right_of_reply_outcome']??null;
+            if($reply==='not_applicable'){
+                if(!in_array($outcome,['passed','not_applicable'],true))$failures[]='Right-of-reply handling has not been recorded.';
+            }elseif(!in_array($reply,['received','declined','published_response'],true)||$outcome!=='passed')$failures[]='Right-of-reply process is incomplete.';
+        }
+        if(!empty($article['media_count'])&&(empty($article['media_all_approved'])||($article['media_rights_outcome']??null)!=='passed'))$failures[]='Attached media or its rights check is not approved.';
+        if(!empty($article['untracked_upload_media']))$failures[]='A legacy upload is not governed by the media library.';
+        return array_values(array_unique($failures));
+    }
 
     public static function nextStatuses(string|array $roles,string $from,array $article=[]): array
     {return array_values(array_filter(self::TRANSITIONS[$from]??[],fn(string $to):bool=>self::canTransition($roles,$from,$to,$article)));}

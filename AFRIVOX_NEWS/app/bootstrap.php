@@ -155,6 +155,7 @@ function record_revision(array $article,int $userId,string $note=''): void {
 function transition_article(int $articleId,string $to,int $userId,string|array $roles,string $explanation=''): void {
     $article=query_one('SELECT * FROM articles WHERE id=?',[$articleId]);if(!$article)throw new RuntimeException('Article missing.');
     $from=(string)$article['status'];$context=array_merge($article,workflow_context($articleId),['actor_id'=>$userId]);
+    if($correctionError=EditorialWorkflow::republishCorrectionError($article,$to))throw new RuntimeException($correctionError);
     if(!EditorialWorkflow::canTransition($roles,$from,$to,$context))throw new RuntimeException('This role, ownership rule, or workflow state cannot perform that transition.');
     if(EditorialWorkflow::transitionRequiresExplanation($from,$to)&&mb_strlen(trim($explanation))<10)throw new RuntimeException('A clear explanation of at least 10 characters is required.');
     $scheduled=$to==='scheduled'?(string)($article['scheduled_at']??''):null;

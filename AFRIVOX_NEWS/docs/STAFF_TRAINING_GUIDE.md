@@ -50,10 +50,10 @@ Pass: no self-approval/publish option, no confidential data in public fields, an
 
 1. Decide five pitches: accept, reject, clarify, hold and merge—with valid reasons.
 2. Assign an accepted pitch with priority, briefing and future due time.
-3. Review a standard story and request revision.
+3. Open **Editorial Desk**, review its readiness blockers, open a standard story and request revision.
 4. Route high-risk content through required fact/legal/source/fairness/right-of-reply checks.
 5. Demonstrate that author self-approval and incomplete gates fail.
-6. Approve and schedule/publish a corrected fictional story using separate actors.
+6. Unpublish a fictional published story with an explanation, return it to review, record a new internal revision note and public correction notice, obtain fresh approval, then republish using separate actors.
 7. Curate and expire a homepage slot; verify chronological fallback.
 8. Publish an approved training article with content type `Video` and a reviewed YouTube URL; verify that it appears in the homepage Featured Videos section and the media archive. Remove or unpublish the training record and verify that no fabricated placeholder replaces it.
 9. Run a live event from draft to closed with reporter update, independent approval and correction note.
@@ -62,7 +62,7 @@ Pass: every transition, denial and public result matches the workflow matrix.
 
 ### Specialist path
 
-Use a fictional article with relevant evidence. Record the specialist’s exact outcome and notes, demonstrate that a failed result blocks approval, then show that the specialist cannot record an unrelated check or publish.
+Use a fictional article with relevant evidence. Open it through **Editorial Desk** and confirm the story body is read-only for a specialist-only account. Record the specialist’s exact outcome with a meaningful evidence note, demonstrate that an empty evidence note is rejected and a failed result blocks approval, then show that the specialist cannot record an unrelated check, change a locked post-publication check or publish.
 
 ### Multimedia path
 
