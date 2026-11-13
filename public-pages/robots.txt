@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /AFRIVOX-NEWS/
+Disallow: /AFRIVOX-NEWS/newsroom-preview.html
+Disallow: /AFRIVOX-NEWS/preview-info.html
+Sitemap: https://rcngbr-lab.github.io/AFRIVOX-NEWS/sitemap.xml

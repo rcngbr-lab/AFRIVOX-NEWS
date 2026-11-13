@@ -72,6 +72,6 @@ final class Security
 
     public static function privilegedRole(string $role): bool
     {
-        return in_array($role,['system_administrator','publisher','editor_in_chief','managing_editor','section_editor','editor','legal_reviewer','advertising_manager','finance_officer'],true);
+        return in_array($role,['system_administrator','publisher','editor_in_chief','managing_editor','section_editor','editor','legal_reviewer','medical_reviewer','advertising_manager','finance_officer'],true);
     }
 }

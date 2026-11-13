@@ -1,4 +1,4 @@
-name: AFRIVOX NEWS production pipeline
+name: UBUZIMACARE production pipeline
 
 on:
   pull_request:
@@ -59,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           php tools/setup_local_sqlite.php
-          php -r '$db=new PDO("sqlite:storage/local-preview.sqlite"); $media=$db->query("PRAGMA table_info(article_media)")->fetchAll(PDO::FETCH_ASSOC); $ads=$db->query("PRAGMA table_info(ad_events)")->fetchAll(PDO::FETCH_ASSOC); if (count($media) !== 4 || count($ads) !== 5) { fwrite(STDERR,"Media or advertising delivery schema is missing or incomplete.\n"); exit(1); } echo "Media and advertising delivery schema verified.\n";'
+          php -r '$db=new PDO("sqlite:storage/local-preview.sqlite"); $media=$db->query("PRAGMA table_info(article_media)")->fetchAll(PDO::FETCH_ASSOC); $ads=$db->query("PRAGMA table_info(ad_events)")->fetchAll(PDO::FETCH_ASSOC); $article=array_column($db->query("PRAGMA table_info(articles)")->fetchAll(PDO::FETCH_ASSOC),null,"name"); if (count($media) !== 4 || count($ads) !== 5 || !isset($article["medical_review_required"])) { fwrite(STDERR,"Media, advertising or medical-review schema is missing or incomplete.\n"); exit(1); } echo "Media, advertising and medical-review schema verified.\n";'
 
       - name: Build deployable artifact
         shell: bash
@@ -85,7 +85,7 @@ jobs:
       - name: Upload verified deployment artifact
         uses: actions/upload-artifact@v4
         with:
-          name: afrivox-news-${{ github.sha }}
+          name: ubuzimacare-${{ github.sha }}
           path: build/AFRIVOX_NEWS/
           if-no-files-found: error
           retention-days: 14
@@ -105,7 +105,7 @@ jobs:
       - name: Download verified artifact
         uses: actions/download-artifact@v4
         with:
-          name: afrivox-news-${{ github.sha }}
+          name: ubuzimacare-${{ github.sha }}
           path: artifact
 
       - name: Configure locked-down SSH client
@@ -166,7 +166,7 @@ jobs:
           DEPLOY_ENABLED: ${{ vars.PRODUCTION_DEPLOY_ENABLED }}
         run: |
           {
-            echo '## AFRIVOX NEWS pipeline status'
+            echo '## UBUZIMACARE pipeline status'
             echo
             echo "- Verification/package: **${VERIFY_RESULT}**"
             echo "- Production deployment: **${DEPLOY_RESULT}**"

@@ -28,6 +28,11 @@ document.addEventListener('click', async (event) => {
   } catch (e) { btn.textContent = document.documentElement.lang === 'en' ? 'COPY THE URL FROM YOUR BROWSER' : 'KOPIYA URL MURI BROWSER'; }
 });
 
+document.querySelectorAll('[data-current-date]').forEach((element) => {
+  const locale = document.documentElement.lang === 'rw' ? 'rw-RW' : document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-GB';
+  element.textContent = `▣ ${new Intl.DateTimeFormat(locale, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }).format(new Date())}`;
+});
+
 document.querySelectorAll('[data-av-headline-slider]').forEach((slider) => {
   const hero = slider.closest('.av-hero') || slider;
   const slides = Array.from(slider.querySelectorAll('[data-av-slide]'));
@@ -303,6 +308,8 @@ document.querySelectorAll('[data-pregnancy-tool]').forEach((tool) => {
 
 document.querySelectorAll('[data-growth-tool]').forEach((tool) => {
   let standards = null;
+  const measurementDate = tool.querySelector('input[name="measured"]');
+  if (measurementDate) measurementDate.value = new Date().toISOString().slice(0, 10);
   fetch(tool.dataset.source, { credentials: 'same-origin' }).then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { standards = data; }).catch(() => {});
   tool.querySelector('form').addEventListener('submit', (event) => {
     event.preventDefault();
@@ -322,4 +329,33 @@ document.querySelectorAll('[data-growth-tool]').forEach((tool) => {
     tool.querySelector('[data-growth-marker]').style.left = `${((bounded + 3) / 6) * 100}%`;
     tool.querySelector('.uz-tool-result').hidden = false;
   });
+});
+
+// One health-resource index powers both PHP hosting and the static Pages build.
+document.querySelectorAll('[data-health-search]').forEach((search) => {
+  const form = search.querySelector('.uz-client-search');
+  const input = search.querySelector('[data-health-search-input]');
+  const items = Array.from(search.querySelectorAll('[data-health-search-item]'));
+  const count = search.querySelector('[data-health-search-count]');
+  const empty = search.querySelector('[data-health-search-empty]');
+  if (!form || !input) return;
+
+  const normalize = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase().trim();
+  const filter = () => {
+    const terms = normalize(input.value).split(/\s+/).filter(Boolean);
+    let visible = 0;
+    items.forEach((item) => {
+      const match = terms.every((term) => normalize(item.dataset.searchText).includes(term));
+      item.hidden = !match;
+      if (match) visible += 1;
+    });
+    if (count) count.textContent = String(visible);
+    if (empty) empty.hidden = visible !== 0;
+    const url = new URL(window.location.href);
+    input.value.trim() ? url.searchParams.set('q', input.value.trim()) : url.searchParams.delete('q');
+    window.history.replaceState({}, '', url);
+  };
+  form.addEventListener('submit', (event) => { event.preventDefault(); filter(); });
+  input.addEventListener('input', filter);
+  filter();
 });

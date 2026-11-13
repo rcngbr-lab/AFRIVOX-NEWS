@@ -140,6 +140,7 @@ CREATE TABLE IF NOT EXISTS articles (
   risk_level ENUM('low','standard','high','critical') NOT NULL DEFAULT 'standard',
   fact_check_required TINYINT(1) NOT NULL DEFAULT 0,
   legal_review_required TINYINT(1) NOT NULL DEFAULT 0,
+  medical_review_required TINYINT(1) NOT NULL DEFAULT 0,
   right_of_reply_status ENUM('not_applicable','not_started','requested','received','declined','published_response') NOT NULL DEFAULT 'not_applicable',
   editor_id BIGINT UNSIGNED DEFAULT NULL,
   approved_by BIGINT UNSIGNED DEFAULT NULL,
@@ -199,7 +200,7 @@ CREATE TABLE IF NOT EXISTS workflow_transitions (
 CREATE TABLE IF NOT EXISTS editorial_checks (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   article_id BIGINT UNSIGNED NOT NULL,
-  check_type ENUM('sources','fairness','right_of_reply','fact_check','legal','copy','media_rights','seo','accessibility') NOT NULL,
+  check_type ENUM('sources','fairness','right_of_reply','fact_check','legal','medical','copy','media_rights','seo','accessibility') NOT NULL,
   outcome ENUM('pending','passed','failed','not_applicable') NOT NULL DEFAULT 'pending',
   notes TEXT DEFAULT NULL,
   checked_by BIGINT UNSIGNED DEFAULT NULL,

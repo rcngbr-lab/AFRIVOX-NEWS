@@ -41,9 +41,10 @@ jobs:
           test -s public-pages/newsroom-preview.html
           test -s public-pages/about.html
           test -s public-pages/contact.html
-          test -s public-pages/media.html
           test -s public-pages/privacy.html
           test -s public-pages/search.html
+          test -s public-pages/sitemap.xml
+          test -s public-pages/robots.txt
           test -s public-pages/health-news.html
           test -s public-pages/health-topics.html
           test -s public-pages/health-tips.html
@@ -52,6 +53,12 @@ jobs:
           test -s public-pages/pregnancy-calculator.html
           test -s public-pages/child-growth-tracker.html
           grep -q 'UBUZIMACARE' public-pages/index.html
+          grep -q 'data-source="/AFRIVOX-NEWS/assets/data/wfa-0-5.json"' public-pages/child-growth-tracker.html
+          grep -q 'data-health-search-item' public-pages/search.html
+          if grep -ERqi 'AFRIVOX NEWS|DEMO / URUGERO|STATIC ADMIN PREVIEW' public-pages --include='*.html' --include='*.xml'; then
+            echo 'Legacy branding or demonstration content leaked into the UBUZIMACARE Pages build.' >&2
+            exit 1
+          fi
           if grep -ERqi 'href="#"|action="#"|onsubmit="return false"' public-pages --include='*.html'; then
             echo 'Nonfunctional placeholder interaction detected in the Pages preview.' >&2
             exit 1

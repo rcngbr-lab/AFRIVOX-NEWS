@@ -23,6 +23,7 @@ final class EditorialWorkflow
         'video_producer'=>['media.upload','media.edit_own'],
         'multimedia_editor'=>['media.upload','media.edit_all','media.approve','media.manage_rights','checks.media_rights'],
         'legal_reviewer'=>['article.view_all','workflow.legal_review','checks.legal','source.view_confidential','source.manage_confidential','inbox.manage'],
+        'medical_reviewer'=>['article.view_all','checks.medical'],
         'seo_audience_editor'=>['article.view_all','article.seo','analytics.view','checks.seo','newsletter.manage','audience.view'],
         'social_media_manager'=>['article.view_published','social.publish'],
         'advertising_manager'=>['advertising.manage','commercial.reports','analytics.commercial'],
@@ -59,7 +60,7 @@ final class EditorialWorkflow
 
     public static function permissionForCheck(string $checkType): ?string
     {
-        return in_array($checkType,['sources','fairness','right_of_reply','fact_check','legal','copy','media_rights','seo','accessibility'],true)?'checks.'.$checkType:null;
+        return in_array($checkType,['sources','fairness','right_of_reply','fact_check','legal','medical','copy','media_rights','seo','accessibility'],true)?'checks.'.$checkType:null;
     }
 
     public static function canCompleteCheck(string|array $roles,string $checkType): bool
@@ -72,7 +73,7 @@ final class EditorialWorkflow
 
     private static function checkFailed(array $article): bool
     {
-        foreach(['sources','fairness','right_of_reply','fact_check','legal','copy','media_rights','seo','accessibility'] as $type){if(($article[$type.'_outcome']??null)==='failed')return true;}
+        foreach(['sources','fairness','right_of_reply','fact_check','legal','medical','copy','media_rights','seo','accessibility'] as $type){if(($article[$type.'_outcome']??null)==='failed')return true;}
         return false;
     }
 
@@ -84,6 +85,10 @@ final class EditorialWorkflow
         $risk=(string)($article['risk_level']??'standard');$high=in_array($risk,['high','critical'],true);
         if(!empty($article['fact_check_required'])&&($article['fact_check_outcome']??null)!=='passed')return false;
         if(!empty($article['legal_review_required'])&&($article['legal_outcome']??null)!=='passed')return false;
+        if(!empty($article['medical_review_required'])){
+            if(($article['medical_outcome']??null)!=='passed')return false;
+            if(!empty($article['medical_checked_by'])&&!empty($article['author_id'])&&(int)$article['medical_checked_by']===(int)$article['author_id'])return false;
+        }
         if($high){foreach(['sources','fairness','fact_check','legal'] as $required)if(($article[$required.'_outcome']??null)!=='passed')return false;}
         $reply=(string)($article['right_of_reply_status']??'not_applicable');
         if($high||$reply!=='not_applicable'){

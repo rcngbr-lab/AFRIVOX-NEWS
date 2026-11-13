@@ -48,6 +48,11 @@ check(EditorialWorkflow::canCompleteCheck('fact_checker','fact_check'),'fact-che
 check(!EditorialWorkflow::canCompleteCheck('editor','fact_check'),'generic editor cannot complete fact check');
 check(EditorialWorkflow::canCompleteCheck('legal_reviewer','legal'),'legal reviewer can complete legal check');
 check(!EditorialWorkflow::canCompleteCheck('editor_in_chief','legal'),'editor-in-chief cannot impersonate legal reviewer');
+check(EditorialWorkflow::canCompleteCheck('medical_reviewer','medical'),'medical reviewer can complete medical check');
+check(!EditorialWorkflow::canCompleteCheck('editor','medical'),'generic editor cannot complete medical check');
+check(!EditorialWorkflow::canTransition('editor','under_review','approved',['author_id'=>7,'actor_id'=>8,'medical_review_required'=>1]),'required medical review blocks approval until passed');
+check(!EditorialWorkflow::canTransition('editor','under_review','approved',['author_id'=>7,'actor_id'=>8,'medical_review_required'=>1,'medical_outcome'=>'passed','medical_checked_by'=>7]),'author cannot provide their own medical review');
+check(EditorialWorkflow::canTransition('editor','under_review','approved',['author_id'=>7,'actor_id'=>8,'medical_review_required'=>1,'medical_outcome'=>'passed','medical_checked_by'=>9]),'independent passed medical review permits approval');
 check(EditorialWorkflow::canCompleteCheck('multimedia_editor','media_rights'),'multimedia editor can complete media rights check');
 
 $key='base64:'.base64_encode(str_repeat('k',32));$plain="Source: protected person\nPhone: +250000000";$cipher=Security::encrypt($plain,$key);
