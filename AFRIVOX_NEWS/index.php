@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 require __DIR__.'/app/bootstrap.php';
+$newsHomepage=__DIR__.'/app/homepage-news.php';
+if(is_file($newsHomepage)){require $newsHomepage;return;}
 $language=health_language();
 $copy=[
  'rw'=>['top'=>'Inkuru y’Ingenzi','welcome'=>'Ubumenyi bufasha gufata ibyemezo byiza ku buzima','deck'=>'Amakuru y’ubuzima, inyigisho zisobanutse n’ibikoresho by’ikoranabuhanga—bigenzurwa n’ubwanditsi kandi bigaragaza aho byakomotse.','read'=>'Soma byinshi','recent'=>'Amakuru Agezweho','all'=>'Reba byose','news'=>'Amakuru y’Ubuzima','topics'=>'Ibyiciro by’Ubuzima','tips'=>'Inama z’Ubuzima','tools'=>'Ibikoresho','newsletter'=>'Iyandikishe ku Kanyamakuru','newsletter_help'=>'Uba uwa mbere kubona amakuru mashya.','email'=>'Andika email yawe…','join'=>'Iyandikishe','empty'=>'Nta nkuru y’ubuzima yemejwe iratangazwa. Ubwanditsi buzazishyira hano zimaze gusuzumwa.','education'=>'UBUZIMACARE itanga ubumenyi rusange; ntabwo isimbura umuganga.'],
