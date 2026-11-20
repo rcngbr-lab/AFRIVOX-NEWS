@@ -66,6 +66,7 @@ function db(): PDO {
 function db_is_sqlite(): bool { return db()->getAttribute(PDO::ATTR_DRIVER_NAME)==='sqlite'; }
 function sql_now(): string { return db_is_sqlite()?"datetime('now')":'NOW()'; }
 function e(?string $v): string { return htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
+function admin_title(string $section): string { return $section.' · '.(string)cfg('site_name','UBUZIMACARE'); }
 function path(string $sub = ''): string { return rtrim((string)cfg('base_path', ''), '/') . '/' . ltrim($sub, '/'); }
 function localized_path(string $sub='',string $language=''): string {
     $language=$language?:site_language();
