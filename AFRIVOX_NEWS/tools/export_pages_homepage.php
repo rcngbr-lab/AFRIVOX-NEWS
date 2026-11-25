@@ -45,7 +45,7 @@ function export_route(string $url):?array
 
 function fetch_export_source(string $url):string
 {
-    $context=stream_context_create(['http'=>['timeout'=>20,'ignore_errors'=>true,'header'=>"User-Agent: AFRIVOX-News-Pages-Exporter/2.0\r\n"]]);
+    $context=stream_context_create(['http'=>['timeout'=>20,'ignore_errors'=>true,'header'=>"User-Agent: UBUZIMACARE-Pages-Exporter/2.0\r\n"]]);
     $content=@file_get_contents($url,false,$context);$statusLine=$http_response_header[0]??'';
     if($content===false||!preg_match('~\s200\s~',$statusLine))throw new RuntimeException('Unable to export '.$url.' ('.$statusLine.').');
     return $content;
@@ -59,7 +59,7 @@ function ensure_parent_directory(string $path):void
 
 function public_shell(string $title,string $heading,string $body,string $robots='noindex,nofollow'):string
 {
-    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="'.$robots.'"><title>'.htmlspecialchars($title,ENT_QUOTES,'UTF-8').'</title><link rel="stylesheet" href="/AFRIVOX-NEWS/assets/style.css"><link rel="icon" href="/AFRIVOX-NEWS/assets/favicon.svg"></head><body class="ubuzima-site"><header class="uz-brand-header"><div class="container"><a class="uz-logo" href="/AFRIVOX-NEWS/"><img src="/AFRIVOX-NEWS/assets/afrivox-logo.svg" alt="AFRIVOX NEWS — Africa Has a Voice."></a></div></header><main id="main-content" class="container uz-page"><header class="uz-page-header"><span>AFRIVOX NEWS</span><h1>'.htmlspecialchars($heading,ENT_QUOTES,'UTF-8').'</h1></header><article class="uz-education-card">'.$body.'</article><p><a href="/AFRIVOX-NEWS/">← Return to AFRIVOX NEWS</a></p></main></body></html>';
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="'.$robots.'"><title>'.htmlspecialchars($title,ENT_QUOTES,'UTF-8').'</title><link rel="stylesheet" href="/AFRIVOX-NEWS/assets/style.css"><link rel="icon" href="/AFRIVOX-NEWS/assets/favicon.svg"></head><body class="ubuzima-site"><header class="uz-brand-header"><div class="container"><a class="uz-logo" href="/AFRIVOX-NEWS/"><img src="/AFRIVOX-NEWS/assets/ubuzimacare-logo.svg" alt="UBUZIMACARE — Knowledge for Better Health"></a></div></header><main id="main-content" class="container uz-page"><header class="uz-page-header"><span>UBUZIMACARE</span><h1>'.htmlspecialchars($heading,ENT_QUOTES,'UTF-8').'</h1></header><article class="uz-education-card">'.$body.'</article><p><a href="/AFRIVOX-NEWS/">← Return to UBUZIMACARE</a></p></main></body></html>';
 }
 
 $seed=['/','/about.php','/contact.php','/newsletter.php','/search.php','/health-news.php','/health-topics.php','/health-tips.php','/health-tools.php','/bmi-calculator.php','/pregnancy-calculator.php','/child-growth-tracker.php','/wellness.php','/health-talks.php','/partners.php','/privacy.php','/policies.php?p=editorial','/policies.php?p=corrections','/policies.php?p=accessibility','/policies.php?p=complaints','/policies.php?p=ai','/feed.php'];
@@ -74,7 +74,7 @@ while($queue){
 }
 
 $formNotice='<div class="av-preview-form-note" role="note"><strong>Secure service required.</strong> This form is available on the PHP/MySQL production deployment; the public Pages edition does not collect personal information. <a href="/AFRIVOX-NEWS/preview-info.html#production">Deployment status →</a></div>';
-$siteBadge='<div style="position:fixed;z-index:999;right:14px;bottom:14px;background:#073b75;color:#fff;padding:8px 11px;border-radius:4px;font:700 9px/1.2 Arial,sans-serif;letter-spacing:.08em;box-shadow:0 4px 16px #001a2f38">AFRIVOX NEWS PUBLIC SITE</div>';
+$siteBadge='<div style="position:fixed;z-index:999;right:14px;bottom:14px;background:#073b75;color:#fff;padding:8px 11px;border-radius:4px;font:700 9px/1.2 Arial,sans-serif;letter-spacing:.08em;box-shadow:0 4px 16px #001a2f38">UBUZIMACARE PUBLIC SITE</div>';
 $previewCss='<style>.av-preview-form-note{border:1px solid #b9d9c7;background:#f2fbf6;color:#073b75;padding:14px 16px;font:600 12px/1.55 Arial,sans-serif}.av-preview-form-note a{color:#08743b;text-decoration:underline}</style>';
 
 foreach($rawPages as $file=>$body){
@@ -111,9 +111,9 @@ $locations=[];foreach(array_keys($rawPages) as $file)if(str_ends_with($file,'.ht
 $sitemap='<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.implode('',$locations).'</urlset>';
 file_put_contents($outputRoot.'/sitemap.xml',$sitemap);
 file_put_contents($outputRoot.'/robots.txt',"User-agent: *\nAllow: /AFRIVOX-NEWS/\nDisallow: /AFRIVOX-NEWS/newsroom-preview.html\nDisallow: /AFRIVOX-NEWS/preview-info.html\nSitemap: {$pagesBase}/sitemap.xml\n");
-file_put_contents($outputRoot.'/404.html',public_shell('Page not found | AFRIVOX NEWS','Page not found','<p>The requested health resource is unavailable or has moved.</p><p>Use the health search or return to the homepage.</p>','noindex,follow'));
-file_put_contents($outputRoot.'/preview-info.html',public_shell('Service status | AFRIVOX NEWS','Public and production services','<p>The GitHub Pages edition provides the approved public health design, educational pages, browser-based calculators and client-side search. It does not collect newsletter or contact data.</p><p id="production"><strong>Secure production:</strong> staff login, CMS publishing, database search, newsletter delivery and private workflows require the separately deployed PHP/MySQL application. Production is not represented as live until hosting, secrets, mail and health checks are configured.</p>'));
-file_put_contents($outputRoot.'/newsroom-preview.html',public_shell('Newsroom access | AFRIVOX NEWS','Secure newsroom access','<p>The AFRIVOX NEWS newsroom is a private operational service, not a public demo dashboard. Authorized staff sign in only on the secure PHP/MySQL production host with role-based permissions and MFA where required.</p><p>GitHub Pages cannot authenticate staff or access the newsroom database.</p>'));
+file_put_contents($outputRoot.'/404.html',public_shell('Page not found | UBUZIMACARE','Page not found','<p>The requested health resource is unavailable or has moved.</p><p>Use the health search or return to the homepage.</p>','noindex,follow'));
+file_put_contents($outputRoot.'/preview-info.html',public_shell('Service status | UBUZIMACARE','Public and production services','<p>The GitHub Pages edition provides the approved public health design, educational pages, browser-based calculators and client-side search. It does not collect newsletter or contact data.</p><p id="production"><strong>Secure production:</strong> staff login, CMS publishing, database search, newsletter delivery and private workflows require the separately deployed PHP/MySQL application. Production is not represented as live until hosting, secrets, mail and health checks are configured.</p>'));
+file_put_contents($outputRoot.'/newsroom-preview.html',public_shell('Newsroom access | UBUZIMACARE','Secure newsroom access','<p>The UBUZIMACARE newsroom is a private operational service, not a public demo dashboard. Authorized staff sign in only on the secure PHP/MySQL production host with role-based permissions and MFA where required.</p><p>GitHub Pages cannot authenticate staff or access the newsroom database.</p>'));
 
 ksort($rawPages);foreach(array_keys($rawPages) as $file)echo 'Exported '.$file.PHP_EOL;
 echo 'Generated sitemap.xml, robots.txt, 404 and production-status pages.'.PHP_EOL;

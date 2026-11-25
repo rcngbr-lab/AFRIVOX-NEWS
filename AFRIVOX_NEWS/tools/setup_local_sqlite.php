@@ -80,7 +80,7 @@ $db->exec("INSERT OR IGNORE INTO schema_migrations(migration_key) VALUES ('20261
  $db->exec("INSERT OR IGNORE INTO schema_migrations(migration_key) VALUES ('20261106_v7_video_library')");
 $db->exec("INSERT OR IGNORE INTO user_roles(user_id,role_key) SELECT id,role FROM users");
 if((int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn()===0){
- $db->prepare('INSERT INTO users(full_name,email,password_hash,role,department) VALUES (?,?,?,?,?)')->execute(['AFRIVOX NEWS Editorial','preview@invalid.example',password_hash(bin2hex(random_bytes(32)),PASSWORD_DEFAULT),'editor_in_chief','Editorial']);
+ $db->prepare('INSERT INTO users(full_name,email,password_hash,role,department) VALUES (?,?,?,?,?)')->execute(['UBUZIMACARE Editorial','preview@invalid.example',password_hash(bin2hex(random_bytes(32)),PASSWORD_DEFAULT),'editor_in_chief','Editorial']);
  $uid=(int)$db->lastInsertId();
  foreach([['Amakuru','amakuru'],['Politiki','politiki'],['Ubukungu','ubukungu'],['Ikoranabuhanga','ikoranabuhanga'],['Ubuzima','ubuzima'],['Siporo','siporo'],['Umuco','umuco'],['Isi','isi'],['Iperereza','iperereza'],['Isesengura','isesengura']] as $i=>$cat)$db->prepare('INSERT INTO categories(name,slug,sort_order) VALUES (?,?,?)')->execute([$cat[0],$cat[1],$i+1]);
  $stories=[
@@ -99,5 +99,5 @@ if((int)$db->query('SELECT COUNT(*) FROM users')->fetchColumn()===0){
 $parent=(int)($db->query("SELECT id FROM categories WHERE slug='ubuzima' LIMIT 1")->fetchColumn()?:0);
 $healthCategories=[['Ubuzima Rusange','general-health'],['VIH/SIDA','hiv-aids'],['Malariya','malaria'],['Kanseri','cancer'],['Diyabete','diabetes'],['Indwara z’Umutima','heart-diseases'],['Ubuzima bw’Ababyeyi n’Abana','maternal-child-health'],['Ubuzima bwo mu Mutwe','mental-health'],['Imirire','nutrition'],['Ubuzima bw’Imyororokere','sexual-reproductive-health'],['Indwara Zandura','infectious-diseases']];
 foreach($healthCategories as $i=>$category)$db->prepare("INSERT OR IGNORE INTO categories(name,slug,parent_id,language,sort_order,active) VALUES (?,?,?,'rw',?,1)")->execute([$category[0],$category[1],$parent?:null,101+$i]);
-$db->exec("INSERT OR IGNORE INTO schema_migrations(migration_key) VALUES ('20261109_v8_AFRIVOX NEWS_health')");
+$db->exec("INSERT OR IGNORE INTO schema_migrations(migration_key) VALUES ('20261109_v8_ubuzimacare_health')");
 echo "Local preview database is ready.\n";

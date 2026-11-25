@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 118" role="img" aria-labelledby="title desc">
+  <title id="title">UBUZIMACARE</title>
+  <desc id="desc">A green and blue heart-shaped health mark with the words UBUZIMA CARE and Knowledge for Better Health.</desc>
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#10ad57"/><stop offset="1" stop-color="#087d42"/></linearGradient></defs>
+  <g transform="translate(8 8)"><path fill="url(#g)" d="M50 94C12 68 2 42 15 23 28 4 51 9 61 25 72 8 96 4 108 23c13 20 2 46-36 71l-11 8-11-8Z"/><path fill="#0b4f94" d="M61 102 50 94C12 68 2 42 15 23c4-6 10-10 17-12-8 22 4 49 29 66 25-17 37-44 29-66 7 2 13 6 18 12 13 20 2 46-36 71l-11 8Z" opacity=".95"/><path fill="#fff" d="M53 31h17v18h18v17H70v18H53V66H35V49h18V31Z"/></g>
+  <text x="130" y="58" fill="#073b75" font-family="Arial,Helvetica,sans-serif" font-size="43" font-weight="800" letter-spacing="1">UBUZIMA</text><text x="342" y="58" fill="#00994b" font-family="Arial,Helvetica,sans-serif" font-size="43" font-weight="800" letter-spacing="1">CARE</text><text x="132" y="88" fill="#082b5f" font-family="Arial,Helvetica,sans-serif" font-size="19" font-style="italic" font-weight="600">Knowledge for Better Health.</text><path d="M372 92c55-17 111-17 166-3" fill="none" stroke="#00994b" stroke-width="5" stroke-linecap="round"/>
+</svg>

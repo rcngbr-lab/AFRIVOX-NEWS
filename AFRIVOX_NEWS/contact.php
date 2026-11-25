@@ -19,7 +19,7 @@ if(($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
         try {
             PublicFormService::check('contact',5,3600);
             db()->prepare('INSERT INTO contact_messages (name,email,subject,message,message_type) VALUES (?,?,?,?,?)')->execute([$name,$email,$subject,$message,$messageType]);
-            flash('Ubutumwa bwakiriwe n’itsinda rya AFRIVOX NEWS. Tuzabusuzuma dukurikije ubwoko bwabwo.');
+            flash('Ubutumwa bwakiriwe n’itsinda rya UBUZIMACARE. Tuzabusuzuma dukurikije ubwoko bwabwo.');
             header('Location: '.path('contact.php')); exit;
         } catch(DomainException) {
             http_response_code(429);
@@ -31,5 +31,5 @@ if(($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
         }
     }
 }
-render_header('Twandikire','Ohereza ikosora, ikirego, amakuru cyangwa ubundi butumwa kuri AFRIVOX NEWS.'); ?>
+render_header('Twandikire','Ohereza ikosora, ikirego, amakuru cyangwa ubundi butumwa kuri UBUZIMACARE.'); ?>
 <main id="main-content" class="container form-page"><span class="overline">READER DESK / CONTACT</span><h1>Twandikire<span class="brand-accent">.</span></h1><p>Ufite igitekerezo, ikosora, ikirego cyangwa amakuru? Hitamo ubwoko bw’ubutumwa. Iyi form si uburyo bwizewe bwo gutanga amabanga: ntushyiremo amazina y’amasoko y’ibanga cyangwa ibindi byatuma umuntu amenyekana.</p><?php if($error):?><div class="form-error" role="alert"><?=e($error)?></div><?php endif;?><form method="post" class="public-form"><?=csrf_field()?><label>Ubwoko bw’ubutumwa<select name="message_type" required><option value="general">Rusange</option><option value="correction">Gusaba ikosora</option><option value="complaint">Ikirego</option><option value="news_tip">Igitekerezo cy’inkuru (nta banga)</option><option value="rights">Uburenganzira / copyright</option><option value="privacy">Privacy / amakuru bwite</option></select></label><label>Amazina<input name="name" required maxlength="160" autocomplete="name"></label><label>Email<input name="email" type="email" required maxlength="190" autocomplete="email" inputmode="email"></label><label>Ingingo<input name="subject" required maxlength="160" placeholder="Vuga muri make icyo ubutumwa bureba"></label><label>Ubutumwa<textarea name="message" required rows="6" minlength="10" maxlength="8000"></textarea></label><div class="honeypot" aria-hidden="true"><label>Website<input type="text" name="website" autocomplete="off" tabindex="-1"></label></div><button type="submit">OHEREZA UBUTUMWA →</button></form></main><?php render_footer(); ?>

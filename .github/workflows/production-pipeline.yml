@@ -1,4 +1,4 @@
-name: AFRIVOX NEWS production pipeline
+name: UBUZIMACARE production pipeline
 
 on:
   pull_request:
@@ -85,7 +85,7 @@ jobs:
       - name: Upload verified deployment artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AFRIVOX NEWS-${{ github.sha }}
+          name: ubuzimacare-${{ github.sha }}
           path: build/AFRIVOX_NEWS/
           if-no-files-found: error
           retention-days: 14
@@ -105,7 +105,7 @@ jobs:
       - name: Download verified artifact
         uses: actions/download-artifact@v4
         with:
-          name: AFRIVOX NEWS-${{ github.sha }}
+          name: ubuzimacare-${{ github.sha }}
           path: artifact
 
       - name: Configure locked-down SSH client
@@ -166,7 +166,7 @@ jobs:
           DEPLOY_ENABLED: ${{ vars.PRODUCTION_DEPLOY_ENABLED }}
         run: |
           {
-            echo '## AFRIVOX NEWS pipeline status'
+            echo '## UBUZIMACARE pipeline status'
             echo
             echo "- Verification/package: **${VERIFY_RESULT}**"
             echo "- Production deployment: **${DEPLOY_RESULT}**"

@@ -19,9 +19,9 @@ try {
         $missing=array_keys(array_filter($required,static fn(bool $ready):bool=>!$ready));
         if($missing)throw new RuntimeException('Production readiness missing: '.implode(', ',$missing).'.');
     }
-    echo json_encode(['status'=>'ok','service'=>'AFRIVOX NEWS','environment'=>$environment],JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
+    echo json_encode(['status'=>'ok','service'=>'ubuzimacare','environment'=>$environment],JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR);
 } catch(Throwable $error) {
     error_log('Health check failed: '.$error->getMessage());
     http_response_code(503);
-    echo json_encode(['status'=>'unavailable','service'=>'AFRIVOX NEWS'],JSON_UNESCAPED_SLASHES);
+    echo json_encode(['status'=>'unavailable','service'=>'ubuzimacare'],JSON_UNESCAPED_SLASHES);
 }

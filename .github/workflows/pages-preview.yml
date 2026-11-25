@@ -1,4 +1,4 @@
-name: Deploy AFRIVOX NEWS Pages preview
+name: Deploy UBUZIMACARE Pages preview
 
 on:
   push:
@@ -52,13 +52,13 @@ jobs:
           test -s public-pages/bmi-calculator.html
           test -s public-pages/pregnancy-calculator.html
           test -s public-pages/child-growth-tracker.html
-          grep -q 'AFRIVOX NEWS' public-pages/index.html
+          grep -q 'UBUZIMACARE' public-pages/index.html
           grep -q 'Static preview — not connected to the newsroom' public-pages/index.html
           grep -q 'This static preview cannot read newsroom records' public-pages/index.html
           grep -q 'data-source="/AFRIVOX-NEWS/assets/data/wfa-0-5.json"' public-pages/child-growth-tracker.html
           grep -q 'data-health-search-item' public-pages/search.html
-          if grep -ERqi 'UBUZIMACARE|DEMO / URUGERO|STATIC ADMIN PREVIEW' public-pages --include='*.html' --include='*.xml'; then
-            echo 'Legacy branding or demonstration content leaked into the AFRIVOX NEWS Pages build.' >&2
+          if grep -ERqi 'AFRIVOX NEWS|DEMO / URUGERO|STATIC ADMIN PREVIEW' public-pages --include='*.html' --include='*.xml'; then
+            echo 'Legacy branding or demonstration content leaked into the UBUZIMACARE Pages build.' >&2
             exit 1
           fi
           if grep -ERqi 'href="#"|action="#"|onsubmit="return false"' public-pages --include='*.html'; then
@@ -87,7 +87,7 @@ jobs:
           mkdir -p pages-build/assets
           cp -R AFRIVOX_NEWS/assets/. pages-build/assets/
           test -s pages-build/assets/style.css
-          test -s pages-build/assets/afrivox-logo.svg
+          test -s pages-build/assets/ubuzimacare-logo.svg
           test -s pages-build/assets/data/wfa-0-5.json
 
       - name: Configure GitHub Pages

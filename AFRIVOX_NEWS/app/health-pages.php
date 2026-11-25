@@ -14,7 +14,7 @@ function health_page_copy(string $key,string $language): string
 function render_health_listing_header(string $title,string $deck,string $language): void
 {
     render_header($title,$deck,$language);?>
-    <main id="main-content" class="container uz-page"><header class="uz-page-header"><span>AFRIVOX NEWS</span><h1><?=e($title)?></h1><p><?=e($deck)?></p></header>
+    <main id="main-content" class="container uz-page"><header class="uz-page-header"><span>UBUZIMACARE</span><h1><?=e($title)?></h1><p><?=e($deck)?></p></header>
 <?php }
 
 function render_health_disclaimer(string $language): void
