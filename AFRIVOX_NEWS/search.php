@@ -39,7 +39,7 @@ unset($resource);
 render_header($copy['title'],$copy['deck'],$language);
 ?>
 <main id="main-content" class="container content-section uz-page">
- <header class="category-header uz-page-header"><span class="overline">UBUZIMACARE</span><h1><?=e($copy['title'])?><span class="brand-accent">.</span></h1><p><?=e($copy['deck'])?></p></header>
+ <header class="category-header uz-page-header"><span class="overline">AFRIVOX NEWS</span><h1><?=e($copy['title'])?><span class="brand-accent">.</span></h1><p><?=e($copy['deck'])?></p></header>
  <section class="uz-search-shell" data-health-search>
   <form method="get" action="<?=e(path('search.php'))?>" class="search-form uz-client-search" role="search">
    <label class="sr-only" for="health-search"><?=e($copy['placeholder'])?></label>

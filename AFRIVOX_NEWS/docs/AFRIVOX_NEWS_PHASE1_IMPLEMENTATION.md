@@ -1,7 +1,7 @@
-# UBUZIMACARE transformation — Phase 1 implementation
+# AFRIVOX NEWS transformation — Phase 1 implementation
 
 Date: 2026-11-12  
-Branch: `feature/ubuzimacare-transformation`
+Branch: `feature/afrivox-news-transformation`
 
 ## Scope delivered
 
@@ -9,7 +9,7 @@ The existing AFRIVOX NEWS PHP/PDO application remains the foundation. Authentica
 
 The public health experience now includes:
 
-- UBUZIMACARE identity, responsive header, navigation and footer.
+- AFRIVOX NEWS identity, responsive header, navigation and footer.
 - Health-focused CMS homepage with honest empty states and explicit demo labels.
 - Health News, Health Topics, Health Tips, Health Tools, Wellness, Health Talks and Partners routes.
 - BMI Calculator for adults, Pregnancy Calculator and WHO weight-for-age Child Growth Tracker.
@@ -36,13 +36,13 @@ Primary references:
 
 | Component | Existing implementation | Changes made | Result |
 |---|---|---|---|
-| Frontend | AFRIVOX responsive public templates | UBUZIMACARE health design and routes | PASS |
+| Frontend | AFRIVOX responsive public templates | AFRIVOX NEWS health design and routes | PASS |
 | Backend | PHP/PDO CMS and public projections | Reused unchanged for health article publication | PASS |
 | Database | MySQL schema + SQLite local mirror | Additive health category migration | PASS |
 | CMS | Draft/review/approval/publish workflow | Preserved; homepage reads published `ubuzima` content | PASS |
 | Security | RBAC, CSRF, MFA, encrypted sources, audit logs | Preserved; tools do not transmit health inputs | PASS |
 | Tests | 83 security/editorial/business tests | Full suite rerun | 83 PASS, 0 FAIL |
-| Routes | Existing public site | 13 UBUZIMACARE route checks | HTTP 200 |
+| Routes | Existing public site | 13 AFRIVOX NEWS route checks | HTTP 200 |
 
 ## Known production gates
 

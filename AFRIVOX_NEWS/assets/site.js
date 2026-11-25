@@ -272,7 +272,7 @@ document.querySelectorAll('[data-av-ad-carousel]').forEach((carousel) => {
   document.addEventListener('visibilitychange', () => cards.forEach((card) => { const state = states.get(card); if (document.hidden && state.timer) { window.clearTimeout(state.timer); state.timer = null; } else scheduleView(card); }));
 })();
 
-// UBUZIMACARE tools calculate locally. No health input is submitted or persisted.
+// AFRIVOX NEWS tools calculate locally. No health input is submitted or persisted.
 document.querySelectorAll('[data-bmi-tool]').forEach((tool) => {
   tool.querySelector('form').addEventListener('submit', (event) => {
     event.preventDefault();
